@@ -81,8 +81,6 @@ public class Grappling_MLab: MonoBehaviour
     //list of local position of hit point on object
     private List<Vector3> grappleLocalPoints;
 
-    private bool tracking;
-
     private bool grappleExecuted;
 
     private PlayerMovement_MLab pm;
@@ -179,10 +177,9 @@ public class Grappling_MLab: MonoBehaviour
     {
         for (int i = 0; i < amountOfSwingPoints; i++)
         {
-            // implementing tracking
             if (hooksActive[i])
             {
-                if (tracking) { TrackObject(i); }
+                { TrackObject(i); }
                 
                 //don't show that prediction point if it's being used
                 predictionPoints[i].gameObject.SetActive(false);
@@ -247,7 +244,6 @@ public class Grappling_MLab: MonoBehaviour
 
         //corresponding grappleObjects is the object the raycast hit
         grappleObjects[swingIndex] = predictionHits[swingIndex].transform;
-        tracking = true;
         
         //converting hit point to local position of hit on object
         grappleLocalPoints[swingIndex] = grappleObjects[swingIndex].
@@ -283,8 +279,6 @@ public class Grappling_MLab: MonoBehaviour
     {
         pm.swinging = false;
         swingsActive[swingIndex] = false;
-
-        // tracking = false;
 
         UpdateHooksActive();
 
@@ -383,7 +377,6 @@ public class Grappling_MLab: MonoBehaviour
 
             // same stuff as in StartSwing() function
             grappleObjects[grappleIndex] = predictionHits[grappleIndex].transform;
-            tracking = true;
             
             //same as in StartSwing()
             grappleLocalPoints[grappleIndex] = grappleObjects[grappleIndex].
@@ -487,8 +480,6 @@ public class Grappling_MLab: MonoBehaviour
         grappleExecuted = false;
 
         grapplesActive[grappleIndex] = false;
-        
-        // tracking = false;
         
         UpdateHooksActive();
 
