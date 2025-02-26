@@ -44,7 +44,7 @@ public class Grappling_MLab: MonoBehaviour
     public Transform cam;
     public float maxSwingDistance = 25f; // max distance you're able hit objects for swinging ability
     public float swingSpherecastRadius = 3f;
-
+    
     private List<SpringJoint> joints; // for swining we use Unitys SpringJoint component
     public float spring = 4.5f; // spring of the SpringJoint component
     public float damper = 7f; // damper of the SpringJoint component
@@ -75,6 +75,11 @@ public class Grappling_MLab: MonoBehaviour
     private Rigidbody rb;
 
     private List<Vector3> grapplePoints; // the point you're grappling to / swinging on
+    
+    private List<Transform> grappleObjects; // the object you're grappling to
+    
+    //list of local position of hit point on object
+    private List<Vector3> grappleLocalPoints;
 
     private bool tracking;
 
@@ -111,8 +116,10 @@ public class Grappling_MLab: MonoBehaviour
     {
         hooksActive = new List<bool>();
         predictionHits = new List<RaycastHit>();
-
+        
         grapplePoints = new List<Vector3>();
+        grappleObjects = new List<Transform>();
+        grappleLocalPoints = new List<Vector3>();
         joints = new List<SpringJoint>();
 
         grapplesActive = new List<bool>();
@@ -122,6 +129,8 @@ public class Grappling_MLab: MonoBehaviour
         {
             hooksActive.Add(false);
             predictionHits.Add(new RaycastHit());
+            grappleObjects.Add(null);
+            grappleLocalPoints.Add(Vector3.zero);
             joints.Add(null);
             grapplePoints.Add(Vector3.zero);
             grapplesActive.Add(false);
@@ -170,8 +179,15 @@ public class Grappling_MLab: MonoBehaviour
     {
         for (int i = 0; i < amountOfSwingPoints; i++)
         {
-            // active swings don't need new checks
-            if (hooksActive[i]) { /* Do Nothing */ }
+            // implementing tracking
+            if (hooksActive[i])
+            {
+                if (tracking) { TrackObject(i); }
+                
+                //don't show that prediction point if it's being used
+                predictionPoints[i].gameObject.SetActive(false);
+                predictionPoints[i].position = Vector3.zero;
+            }
             else
             {
                 RaycastHit hit = predictionHits[i];
@@ -208,14 +224,12 @@ public class Grappling_MLab: MonoBehaviour
                     predictionPoints[i].position = Vector3.zero;
                 }
 
-                print("hit: " + hit.point);
+                // print("hit: " + hit.point);
 
                 predictionHits[i] = directHit.point == Vector3.zero ? hit : directHit;
             }
         }
     }
-
-    private Transform grappleObject;
     public void StartSwing(int swingIndex)
     {
         if (!pm.IsStateAllowed(PlayerMovement_MLab.MovementMode.swinging))
@@ -231,9 +245,13 @@ public class Grappling_MLab: MonoBehaviour
         // this will cause the PlayerMovement script to enter MovementMode.swinging
         pm.swinging = true;
 
-        // the grappleObject is the object the raycast hit
-        grappleObject = predictionHits[swingIndex].transform;
+        //corresponding grappleObjects is the object the raycast hit
+        grappleObjects[swingIndex] = predictionHits[swingIndex].transform;
         tracking = true;
+        
+        //converting hit point to local position of hit on object
+        grappleLocalPoints[swingIndex] = grappleObjects[swingIndex].
+            InverseTransformPoint(predictionHits[swingIndex].point);
 
         // the exact point where you swing on
         grapplePoints[swingIndex] = predictionHits[swingIndex].point;
@@ -266,7 +284,7 @@ public class Grappling_MLab: MonoBehaviour
         pm.swinging = false;
         swingsActive[swingIndex] = false;
 
-        tracking = false;
+        // tracking = false;
 
         UpdateHooksActive();
 
@@ -354,7 +372,7 @@ public class Grappling_MLab: MonoBehaviour
         // Case 1 - target point found
         if (TargetPointFound(grappleIndex))
         {
-            print("grapple: target found");
+            // print("grapple: target found");
 
             // set cooldown
             grapplingCdTimer = grapplingCd;
@@ -364,8 +382,12 @@ public class Grappling_MLab: MonoBehaviour
             pm.freeze = true;
 
             // same stuff as in StartSwing() function
-            grappleObject = predictionHits[grappleIndex].transform;
+            grappleObjects[grappleIndex] = predictionHits[grappleIndex].transform;
             tracking = true;
+            
+            //same as in StartSwing()
+            grappleLocalPoints[grappleIndex] = grappleObjects[grappleIndex].
+                InverseTransformPoint(predictionHits[grappleIndex].point);
 
             grapplePoints[grappleIndex] = predictionHits[grappleIndex].point;
 
@@ -378,7 +400,7 @@ public class Grappling_MLab: MonoBehaviour
         // Case 2 - target point not found
         else
         {
-            print("grapple: target missed");
+            // print("grapple: target missed");
 
             // we still want to freeze the player for a bit
             pm.freeze = true;
@@ -415,7 +437,7 @@ public class Grappling_MLab: MonoBehaviour
             // no upwards force when point is below player
             if (grapplePointRelativeYPos < 0) highestPointOfArc = overshootYAxis;
 
-            print("trying to grapple to " + grapplePointRelativeYPos + " which arc " + highestPointOfArc);
+            // print("trying to grapple to " + grapplePointRelativeYPos + " which arc " + highestPointOfArc);
 
             pm.JumpToPosition(grapplePoints[grappleIndex], highestPointOfArc, default, 3f);
         }
@@ -465,9 +487,12 @@ public class Grappling_MLab: MonoBehaviour
         grappleExecuted = false;
 
         grapplesActive[grappleIndex] = false;
+        
+        // tracking = false;
+        
         UpdateHooksActive();
 
-        print("grapple: stop " + grappleIndex);
+        // print("grapple: stop " + grappleIndex);
     }
 
     private void CancelActiveGrapples()
@@ -498,7 +523,7 @@ public class Grappling_MLab: MonoBehaviour
     {
         if (grappleExecuted)
         {
-            print("grapple: objecttouch");
+            // print("grapple: objecttouch");
             CancelActiveGrapples();
         }
     }
@@ -508,16 +533,18 @@ public class Grappling_MLab: MonoBehaviour
     #region Tracking Objects
 
     // Important Note: function currently not being used, I'll implement that soon
-    private void TrackObject()
+    private void TrackObject(int grappleIndex)
     {
-        ///Calculate direction
-        Vector3 direction = transform.position - grappleObject.position;
-
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, direction, out hit, maxSwingDistance))
+        //implement canceling of grapple if object is destroyed later //TODO: THIS
+        if (grappleObjects[grappleIndex] == null) return;
+        
+        //use local position of hit point on object
+        grapplePoints[grappleIndex] = grappleObjects[grappleIndex].TransformPoint(grappleLocalPoints[grappleIndex]);
+        
+        //was going null in grapple cancel
+        if (joints[grappleIndex] != null)
         {
-            grapplePoints[0] = hit.point;
-            joints[0].connectedAnchor = grapplePoints[0];
+            joints[grappleIndex].connectedAnchor = grapplePoints[grappleIndex];
         }
     }
 

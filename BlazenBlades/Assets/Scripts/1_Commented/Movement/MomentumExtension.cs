@@ -63,12 +63,25 @@ public class MomentumExtension : MonoBehaviour
     public float GetIncreaseSpeedChangeFactor(PlayerMovement_MLab.MovementMode movementMode)
     {
         float speedChangeFactor = 0f;
+        
         MovementState movementState = GetMovementState(movementMode);
-
-        if (movementState.speedBuildupFactor == -1)
-            speedChangeFactor = -1;
+        
+        if (movementState != null)
+        {
+            if (movementState.speedBuildupFactor == -1)
+            {
+                speedChangeFactor = -1;
+            }
+                
+            else
+            {
+                speedChangeFactor = momentumIncreaseFactor * movementState.speedBuildupFactor;
+            }
+        }
         else
-            speedChangeFactor = momentumIncreaseFactor * movementState.speedBuildupFactor;
+        {
+            speedChangeFactor = -1;
+        }
 
         return speedChangeFactor;
     }
@@ -78,12 +91,22 @@ public class MomentumExtension : MonoBehaviour
         float speedChangeFactor = 0f;
 
         MovementState movementState = GetMovementState(movementMode);
-
-        if (movementState.speedBuilddownFactor == -1)
-            speedChangeFactor = -1;
+        
+        if (movementState != null)
+        {
+            if (movementState.speedBuilddownFactor == -1)
+            {
+                speedChangeFactor = -1;
+            }
+                
+            else
+            {
+                speedChangeFactor = momentumIncreaseFactor * movementState.speedBuilddownFactor;
+            }
+        }
         else
         {
-            speedChangeFactor = movementState.speedBuilddownFactor;
+            speedChangeFactor = -1;
         }
 
         return speedChangeFactor;
