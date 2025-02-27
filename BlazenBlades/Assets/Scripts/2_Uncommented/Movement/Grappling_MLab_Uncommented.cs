@@ -33,8 +33,9 @@ public class Grappling_MLab_Uncommented : MonoBehaviour
 
     private Vector3 grapplePoint;
 
+    //SAID IT HELPS, BUT WASN'T USED ANYWHERE. COMMENTED, SID
     //Fixing the problem of joint staying after gun switch
-    private bool tracking;
+    // private bool tracking;
 
     private bool grappleExecuted;
 
@@ -77,7 +78,7 @@ public class Grappling_MLab_Uncommented : MonoBehaviour
         {
             grappleObject = hit.transform;
             Debug.Log(hit.transform.name);
-            tracking = true;
+            // tracking = true;
 
             grapplePoint = hit.point;
             joint = gameObject.AddComponent<SpringJoint>();
@@ -101,7 +102,7 @@ public class Grappling_MLab_Uncommented : MonoBehaviour
     {
         pm.swinging = false;
 
-        tracking = false;
+        // tracking = false;
         Destroy(joint);
     }
     private void TrackObject()
@@ -151,7 +152,7 @@ public class Grappling_MLab_Uncommented : MonoBehaviour
 
             grappleObject = hit.transform;
             Debug.Log(hit.transform.name);
-            tracking = true;
+            // tracking = true;
 
             grapplePoint = hit.point;
 

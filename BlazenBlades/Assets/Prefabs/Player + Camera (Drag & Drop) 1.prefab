@@ -1314,7 +1314,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 60
+  m_VersionIndex: 72
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -1964,7 +1964,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 63
+  m_VersionIndex: 75
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -2136,7 +2136,7 @@ MonoBehaviour:
   jumpForce: 13
   jumpCooldown: 0.25
   crouchYScale: 0.5
-  doubleJumps: 1
+  doubleJumps: 0
   jumpKey: 32
   walkKey: 304
   crouchKey: 306
@@ -2148,7 +2148,7 @@ MonoBehaviour:
   climbMaxSpeed: 3
   dashMaxSpeed: 22
   swingMaxSpeed: 20
-  airMaxSpeed: 9
+  airMaxSpeed: 15
   limitedMaxSpeed: 20
   speedIncreaseMultiplier: 1
   slopeIncreaseMultiplier: 5
@@ -2225,19 +2225,19 @@ MonoBehaviour:
     movementMode: 4
     speedBuildupFactor: 2
     speedBuilddownFactor: 1
-    minNeededMomentum: 0
+    minNeededMomentum: 5
     maxAllowedMomentum: 100
   - stateName: Wallrunning
     movementMode: 8
     speedBuildupFactor: 1
     speedBuilddownFactor: 1
-    minNeededMomentum: 0
+    minNeededMomentum: 5
     maxAllowedMomentum: 100
   - stateName: Walljumping
     movementMode: 9
     speedBuildupFactor: 1
     speedBuilddownFactor: 1
-    minNeededMomentum: 0
+    minNeededMomentum: 5
     maxAllowedMomentum: 100
   - stateName: Climbing
     movementMode: 10
@@ -2287,7 +2287,7 @@ MonoBehaviour:
   camT: {fileID: 6203304368396983091}
   cam: {fileID: 6203304367693416331}
   orientation: {fileID: 6203304367961361731}
-  baseFov: 90
+  baseFov: 100
   fovTransitionTime: 0.25
   tiltTransitionTime: 0.25
   hbEnabled: 0
@@ -2325,8 +2325,8 @@ MonoBehaviour:
   useGravity: 1
   gravityCounterForce: 28
   climbForce: 200
-  climbJumpUpForce: 15
-  climbJumpBackForce: 15
+  climbJumpUpForce: 10
+  climbJumpBackForce: 5
   maxClimbYSpeed: 10
   maxClimbTime: 0.75
   maxWallLookAngle: 30
@@ -2407,7 +2407,7 @@ MonoBehaviour:
   disableGravity: 1
   resetYVel: 1
   resetVel: 1
-  dashFov: 95
+  dashFov: 110
   dashCd: 1.5
   dashKey: 101
 --- !u!114 &6203304368605208337

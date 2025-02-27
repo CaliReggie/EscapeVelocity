@@ -112,7 +112,7 @@ public class LedgeGrabbing_MLab : MonoBehaviour
 
     private void LedgeJump()
     {
-        print("ledge jump");
+        // print("ledge jump");
 
         ExitLedgeHold();
 
@@ -130,13 +130,15 @@ public class LedgeGrabbing_MLab : MonoBehaviour
     {
         if (exitingLedge) return;
 
-        print("entered ledge hold");
+        // print("entered ledge hold");
 
         main.ledgegrabbing = true;
         holding = true;
 
         pm.restricted = true;
-        pm.unlimitedSpeed = true;
+        
+        //USED TO BE IN, I UNCOMMENTED BC MAX SPEED STAYED UNLIMITED, IDK WHY - Sid
+        // pm.unlimitedSpeed = true;
 
         currLedge = ledgeHit.transform;
         lastLedge = ledgeHit.transform;
@@ -145,7 +147,8 @@ public class LedgeGrabbing_MLab : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
     }
 
-    bool touchingLedge;
+    //Didn't seem to do anything, so I commented it out - Sid
+    // bool touchingLedge;
     private void FreezeRigidbodyOnLedge()
     {
         rb.useGravity = false;
@@ -163,10 +166,10 @@ public class LedgeGrabbing_MLab : MonoBehaviour
             if (rb.linearVelocity.magnitude < moveToLedgeSpeed)
                 rb.AddForce(directionToLedge.normalized * moveToLedgeSpeed * 1000f * Time.deltaTime);
 
-            /// The current problem is that I can't set the velocity from here, I can only add force
-            /// -> but then the force is mainly upwards :D
+            // The current problem is that I can't set the velocity from here, I can only add force
+            // -> but then the force is mainly upwards :D
 
-            print("moving to ledge");
+            // print("moving to ledge");
         }
 
         // Hold onto ledge
@@ -174,8 +177,8 @@ public class LedgeGrabbing_MLab : MonoBehaviour
         {
             if (pm.unlimitedSpeed) pm.unlimitedSpeed = false;
             if (!pm.freeze) pm.freeze = true;
-            ///rb.velocity = Vector3.zero;
-            print("hanging on ledge");
+            //rb.velocity = Vector3.zero;
+            // print("hanging on ledge");
         }
     }
 
@@ -204,20 +207,21 @@ public class LedgeGrabbing_MLab : MonoBehaviour
     }
 
 
+    //Wasn't used, so I commented it out - Sid
     // checking with collisionEnter an Exit if the ledge has been reached (touched)
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.transform.tag == "Ledge")
-        {
-            touchingLedge = true;
-        }
-    }
+    // private void OnCollisionEnter(Collision collision)
+    // {
+    //     if (collision.transform.tag == "Ledge")
+    //     {
+    //         touchingLedge = true;
+    //     }
+    // }
 
-    private void OnCollisionExit(Collision collision)
-    {
-        if (collision.transform.tag == "Ledge")
-        {
-            touchingLedge = false;
-        }
-    }
+    // private void OnCollisionExit(Collision collision)
+    // {
+    //     if (collision.transform.tag == "Ledge")
+    //     {
+    //         touchingLedge = false;
+    //     }
+    // }
 }

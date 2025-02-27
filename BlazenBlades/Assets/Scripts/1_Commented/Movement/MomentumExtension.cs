@@ -127,7 +127,8 @@ public class MomentumExtension : MonoBehaviour
         else if (currMomentum > movementState.maxAllowedMomentum)
             stateAllowed = false;
 
-        Debug.Log($"CurrMomentum {currMomentum}, MinMomentum {movementState.minNeededMomentum}, MaxMomentum {movementState.maxAllowedMomentum} -> State {movementState.stateName} allowed -> {stateAllowed}");
+        // Debug.Log($"CurrMomentum {currMomentum}, MinMomentum {movementState.minNeededMomentum},
+        // MaxMomentum {movementState.maxAllowedMomentum} -> State {movementState.stateName} allowed -> {stateAllowed}");
 
         return stateAllowed;
     }

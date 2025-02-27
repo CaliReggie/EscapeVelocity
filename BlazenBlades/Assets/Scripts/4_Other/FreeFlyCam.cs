@@ -38,14 +38,14 @@ public class FreeFlyCam : MonoBehaviour
             cam.enabled = true;
             pm.enabled = false;
             playerCam.enabled = false;
-            FindObjectOfType<Canvas>().enabled = false;
+            FindAnyObjectByType<Canvas>().enabled = false;
         }
         if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Alpha1))
         {
             cam.enabled = false;
             pm.enabled = true;
             playerCam.enabled = true;
-            FindObjectOfType<Canvas>().enabled = true;
+            FindAnyObjectByType<Canvas>().enabled = true;
         }
     }
 

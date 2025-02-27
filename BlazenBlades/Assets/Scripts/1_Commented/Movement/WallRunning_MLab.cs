@@ -62,7 +62,8 @@ public class WallRunning_MLab : MonoBehaviour
 
     private float wallLookAngle;
     private float climbTimer;
-    private bool readyToClimb; // is true if player hits a new wall or has sucessfully exited the old one
+    // Didn't seem to be used, so I commented it out - Sid
+    // private bool readyToClimb; // is true if player hits a new wall or has sucessfully exited the old one
 
     public float minFrontWallAngle = 80; // how steep the wall needs to be
     private float frontWallAngle;
@@ -269,7 +270,7 @@ public class WallRunning_MLab : MonoBehaviour
         {
             if (NewWallHit())
             {
-                ResetReadyToClimb();
+                // ResetReadyToClimb();
                 ResetWallJumpsDone();
 
                 if (resetDoubleJumpsOnNewWall)
@@ -516,7 +517,7 @@ public class WallRunning_MLab : MonoBehaviour
         pm.maxYSpeed = -1;
 
         // no longer readyToClimb until the wall is sucessfully exited
-        readyToClimb = false;
+        // readyToClimb = false;
 
         // reset cam shake
         cam.ResetShake();
@@ -530,10 +531,10 @@ public class WallRunning_MLab : MonoBehaviour
 
     /// called when the player has sucessfully exited a wall
     /// makes climbing possible again
-    private void ResetReadyToClimb()
-    {
-        readyToClimb = true;
-    }
+    // private void ResetReadyToClimb()
+    // {
+    //     readyToClimb = true;
+    // }
 
     #endregion
 
@@ -620,7 +621,7 @@ public class WallRunning_MLab : MonoBehaviour
 
         else
         {
-            print("WallJump was called, but there is no wall in range");
+            // print("WallJump was called, but there is no wall in range");
         }
 
         // if your jump is "allowed", apply the full jump force, including upward force
@@ -688,7 +689,7 @@ public class WallRunning_MLab : MonoBehaviour
         // no upwards force when point is below player
         if (markerSphereRelativeYPos < 0) highestPointOfArc = 1;
 
-        print("predicted wall jump " + markerSphereRelativeYPos + " " + highestPointOfArc);
+        // print("predicted wall jump " + markerSphereRelativeYPos + " " + highestPointOfArc);
 
         pm.JumpToPosition(dt.markerSphere.position, highestPointOfArc, midPoint);
 
@@ -735,7 +736,7 @@ public class WallRunning_MLab : MonoBehaviour
         /// also the wall needs to be steep enough
         else if ((wallFront || topReached) && verticalInput > 0 && wallLookAngle < maxWallLookAngle && !exitingWall && frontWallAngle > minFrontWallAngle)
         {
-            print("climbing...");
+            // print("climbing...");
 
             state = State.climbing;
 
@@ -832,8 +833,8 @@ public class WallRunning_MLab : MonoBehaviour
                 // set extiWall to false again -> state will now change to Stat.none
                 exitingWall = false;
 
-                // reset readyToClimb when player has sucessfully exited the wall
-                ResetReadyToClimb();
+                // // reset readyToClimb when player has sucessfully exited the wall
+                // ResetReadyToClimb();
             }
         }
 

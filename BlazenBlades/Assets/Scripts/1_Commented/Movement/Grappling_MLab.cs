@@ -570,27 +570,4 @@ public class Grappling_MLab: MonoBehaviour
     }
 
     #endregion
-
-    /// just to visualize the maxGrappleRange inside of Unity
-    #region Gizmos Visualisation
-
-    private void OnDrawGizmosSelected()
-    {
-        if (!debuggingEnabled) return;
-
-        Gizmos.color = Color.blue;
-        if (grapplePoints == null)
-        {
-            Vector3 direction = (grapplePoints[0] - transform.position).normalized;
-            Gizmos.DrawRay(transform.position, direction * maxGrappleDistance);
-        }
-
-        Gizmos.color = Color.red;
-        for (int i = 0; i < amountOfSwingPoints; i++)
-        {
-            Gizmos.DrawRay(pointAimers[i].position, pointAimers[i].forward * maxGrappleDistance);
-        }
-    }
-
-    #endregion
 }

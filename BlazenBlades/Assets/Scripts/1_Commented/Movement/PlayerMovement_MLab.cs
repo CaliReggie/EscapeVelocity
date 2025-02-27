@@ -197,7 +197,7 @@ public class PlayerMovement_MLab : MonoBehaviour
 
     private void Update()
     {
-        print("slope" + OnSlope());
+        // print("slope" + OnSlope());
 
         // make sure to call all functions every frame
         MyInput();
@@ -218,7 +218,7 @@ public class PlayerMovement_MLab : MonoBehaviour
             if (Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, 50f, whatIsGround))
             {
                 JumpToPosition(hit.point, 10f);
-                print("trying to jump to " + hit.point);
+                // print("trying to jump to " + hit.point);
             }
         }
 
@@ -598,7 +598,10 @@ public class PlayerMovement_MLab : MonoBehaviour
         if (momentumExtensionEnabled)
             UpdateMomentumBasedMaxSpeed();
         else
+        {
             maxSpeed = desiredMaxSpeed;
+        }
+        
 
         // movement mode switched
         if (movementModeLastFrame != mm)
@@ -634,7 +637,10 @@ public class PlayerMovement_MLab : MonoBehaviour
         }
 
         if (maxSpeed == desiredMaxSpeed)
+        {
             return;
+        }
+            
 
         isIncreasingMaxSpeed = desiredMaxSpeed > maxSpeed;
         float speedChangeFactor = isIncreasingMaxSpeed ? increaseSpeedChangeFactor : decreaseSpeedChangeFactor;
@@ -647,7 +653,7 @@ public class PlayerMovement_MLab : MonoBehaviour
             maxSpeed = desiredMaxSpeed;
             return;
         }
-
+        
         if (isIncreasingMaxSpeed)
         {
             // only increase max speed if trying to reach it
@@ -730,18 +736,18 @@ public class PlayerMovement_MLab : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         bool touch = false;
-        print("Contact count" + collision.contactCount);
+        // print("Contact count" + collision.contactCount);
         // Note: What is ground layer means Layer 7!
-        print("Contact Layer " + collision.collider.gameObject.layer + " / " + whatIsGround.value);
+        // print("Contact Layer " + collision.collider.gameObject.layer + " / " + whatIsGround.value);
         for (int i = 0; i < collision.contactCount; i++)
         {
             if (collision.collider.gameObject.layer == 9 || collision.collider.gameObject.layer == 10)
                 touch = true;
         }
 
-        if (touch) print("GroundObjectTouched");
+        // if (touch) print("GroundObjectTouched");
 
-        print("event sucessfully called");
+        // print("event sucessfully called");
 
         if (enableMovementOnNextTouch && touch)
         {
