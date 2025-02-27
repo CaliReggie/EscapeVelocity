@@ -1,7 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening; // I use DoTween for the camera effects, so this reference is needed
+using DG.Tweening;
+using UnityEngine.InputSystem;
+using UnityEngine.Serialization; // I use DoTween for the camera effects, so this reference is needed
 
 
 // Dave MovementLab - PlayerCam
@@ -28,19 +31,49 @@ public enum eCamType
 
 public class PlayerCam_MLab : MonoBehaviour
 {
-    [Header("Camera Type")]
-
+    [Header("General Cam Settings")]
     [SerializeField]
     public eCamType camType = eCamType.FirstPerson;
     
-    [Header("Sensitivity")]
-    public float sensX = 10f;
-    public float sensY = 10f;
+    public LayerMask firstPersonRenderMask = -1;
+    
+    public LayerMask thirdPersonRenderMask = -1;
+    
+    [Header("First Person Cam")]
+    
+    public Transform firstPersonCamPlacePos;
+    
+    public GameObject firstPersonCamGameObject;
+    
+    public float lookSpeedMult;
+    
+    [Header("Third Person Orbit Cam")]
 
+    public GameObject thirdPersonOrbitGameObject;
+    
+    public float playerRotSpeed = 1;
+    
+    [Header("Third person Fixed Cam")]
+    
+    public GameObject thirdPersonFixedGameObject;
+    
+    [Header("Grapple View Management")]
+    
+    public GameObject grappleRig;
+    
+    
+    [Header("Input Assignable")]
+    
+    public InputActionReference lookAction;
+    
+    public InputActionReference moveAction;
+    
     [Header("Assignables")]
-    public Transform camT; // the camerHolder
+    public Transform camHolder; // the camerHolder
     public Camera cam; // the camera (inside the cameraHolder)
     public Transform orientation; // reference to the orientation of the player
+    public Transform player;
+    public Transform playerObj;
 
     [Header("Effects")]
     public float baseFov = 90f;
@@ -58,14 +91,36 @@ public class PlayerCam_MLab : MonoBehaviour
     private float hbToggleSpeed = 3f; // if the players speed is smaller than the hbToggleSpeed, the headBob effect wont play
     private Vector3 hbStartPos;
     private Rigidbody rb;
-
-    [HideInInspector] public float mouseX;
-    [HideInInspector] public float mouseY;
-
-    private float multiplier = 0.01f;
+    
+    private Vector2 lookInput;
+    
+    private Vector2 moveInput;
 
     private float xRotation;
     private float yRotation;
+
+    private void Awake()
+    {
+        if (lookAction == null)
+        {
+            Debug.LogError("Look action not set in ThirdPersonCameraController");
+            
+            Destroy(gameObject);
+        }
+        
+        if (moveAction == null)
+        {
+            Debug.LogError("Move action not set in ThirdPersonCameraController");
+            
+            Destroy(gameObject);
+        }
+        
+        Cursor.lockState = CursorLockMode.Locked;
+        
+        Cursor.visible = false;
+        
+        SwitchToCamType(camType);
+    }
 
     private void Start()
     {
@@ -73,7 +128,7 @@ public class PlayerCam_MLab : MonoBehaviour
         hbStartPos = cam.transform.localPosition;
 
         // get the components
-        camT = GameObject.Find("CameraHolder").transform;
+        camHolder = GameObject.Find("CameraHolder").transform;
         rb = GetComponent<Rigidbody>();
 
         // lock the mouse cursor in the middle of the screen
@@ -81,9 +136,27 @@ public class PlayerCam_MLab : MonoBehaviour
         // make the mouse coursor invisible
         Cursor.visible = false;
     }
+    
+     private void OnEnable()
+    {
+        lookAction.action.Enable();
+        
+        moveAction.action.Enable();
+    }
+    
+    private void OnDisable()
+    {
+        lookAction.action.Disable();
+        
+        moveAction.action.Disable();
+    }
+
 
     private void Update()
     {
+
+        GetInput();
+        
         RotateCamera();
 
         // if headBob is enabled, start the CheckMotion() function
@@ -94,26 +167,110 @@ public class PlayerCam_MLab : MonoBehaviour
             cam.transform.LookAt(FocusTarget());
         }
     }
+    
+    private void GetInput()
+    {
+        lookInput = lookAction.action.ReadValue<Vector2>();
+        
+        moveInput = moveAction.action.ReadValue<Vector2>();
+    }
+
+    public void SwitchToCamType(eCamType toCamType)
+    {
+        firstPersonCamGameObject.SetActive( false);
+        thirdPersonOrbitGameObject.SetActive( false);
+        thirdPersonFixedGameObject.SetActive( false);
+
+        switch (toCamType)
+        {
+            case eCamType.FirstPerson:
+                
+                camType = eCamType.FirstPerson;
+                
+                cam.cullingMask = firstPersonRenderMask;
+                
+                firstPersonCamGameObject.SetActive( true);
+                
+                break;
+            
+            case eCamType.ThirdOrbit:
+                
+                camType = eCamType.ThirdOrbit;
+                
+                cam.cullingMask = thirdPersonRenderMask;
+                
+                thirdPersonOrbitGameObject.SetActive( true);
+                
+                break;
+            
+            case eCamType.ThirdFixed:
+                
+                camType = eCamType.ThirdFixed;
+                
+                cam.cullingMask = thirdPersonRenderMask;
+                
+                thirdPersonFixedGameObject.SetActive( true);
+                
+                break;
+        }
+    }
 
     public void RotateCamera()
     {
-        // first get the mouseX and Y Input
-        float mouseX = Input.GetAxisRaw("Mouse X") * sensX;
-        float mouseY = Input.GetAxisRaw("Mouse Y") * sensY;
+        switch (camType)
+        {
+            case eCamType.FirstPerson:
+                
+                //set rotation
+                yRotation += lookInput.x * lookSpeedMult;
+                xRotation -= lookInput.y * lookSpeedMult;
+                
+                // make sure that you can't look up or down more than 90* degrees
+                xRotation = Mathf.Clamp(xRotation, -89f, 89f);
+                
+                // rotate the camera holder along the x and y axis
+                // camHolder.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+                
+                firstPersonCamGameObject.transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+                
+                //rotate player object and orientation along the y axis
+                playerObj.rotation = Quaternion.Euler(0, yRotation, 0);
+                orientation.rotation = Quaternion.Euler(0, yRotation, 0);
+                
+                break;
+            
+            case eCamType.ThirdOrbit:
+                Vector3 orbitViewDir = player.position - new Vector3(thirdPersonOrbitGameObject.transform.position.x,
+                    player.position.y, thirdPersonOrbitGameObject.transform.position.z);
 
-        // then calculate the x and y rotation of your camera using this formula:
-        /// yRotation plus mouseX
-        /// xRotation minus mouseY
-        yRotation += mouseX * sensX * multiplier;
-        xRotation -= mouseY * sensY * multiplier;
+                orientation.forward = orbitViewDir.normalized;
 
-        // make sure that you can't look up or down more than 90* degrees
-        xRotation = Mathf.Clamp(xRotation, -89f, 89f);
+                Vector3 orbitInputDir = orientation.forward * moveInput.y + orientation.right * moveInput.x;
+                
+                orbitInputDir = new Vector3(orbitInputDir.x, 0, orbitInputDir.z).normalized;
 
-        // rotate the camera holder along the x and y axis
-        camT.rotation = Quaternion.Euler(xRotation, yRotation, 0);
-        // rotate the players orientation, but only along the y (horizontal) axis
-        orientation.rotation = Quaternion.Euler(0, yRotation, 0);
+                if (orbitInputDir != Vector3.zero)
+                {
+                    playerObj.forward = Vector3.Slerp(playerObj.forward, orbitInputDir, Time.deltaTime *
+                        playerRotSpeed);
+                }
+                
+                break;
+            
+            case eCamType.ThirdFixed:
+                
+                Vector3 fixedViewDir = player.position - new Vector3(thirdPersonOrbitGameObject.transform.position.x,
+                    player.position.y, thirdPersonOrbitGameObject.transform.position.z);
+                
+                fixedViewDir.y = 0;
+
+                orientation.forward = fixedViewDir.normalized;
+
+                playerObj.forward = orientation.forward;
+                
+                break;
+                
+        }
     }
 
 
@@ -223,8 +380,8 @@ public class PlayerCam_MLab : MonoBehaviour
     {
         // make sure the camera focuses (Looks at) a point 15 tiles away from the player
         // this stabilizes the camera
-        Vector3 pos = new Vector3(transform.position.x, camT.position.y, transform.position.z);
-        pos += camT.forward * 15f;
+        Vector3 pos = new Vector3(transform.position.x, camHolder.position.y, transform.position.z);
+        pos += camHolder.forward * 15f;
         return pos;
     }
 

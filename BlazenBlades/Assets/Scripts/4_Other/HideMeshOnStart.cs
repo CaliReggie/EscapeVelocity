@@ -10,7 +10,13 @@ public class HideMeshOnStart : MonoBehaviour
     {
         if (hideMesh)
         {
-            GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
+            MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
+            
+            // hide the mesh
+            meshRenderer.enabled = false;
+            
+            // leave the shadows
+            meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
         }
     }
 }
