@@ -18,9 +18,21 @@ using DG.Tweening; // I use DoTween for the camera effects, so this reference is
 /// 
 /// If you're a beginner, just ignore the effects and headBob stuff and focus on the rotation code.
 
+public enum eCamType
+{
+    FirstPerson,
+    ThirdOrbit,
+    ThirdFixed,
+    LooseFollow
+}
 
 public class PlayerCam_MLab : MonoBehaviour
 {
+    [Header("Camera Type")]
+
+    [SerializeField]
+    public eCamType camType = eCamType.FirstPerson;
+    
     [Header("Sensitivity")]
     public float sensX = 10f;
     public float sensY = 10f;
