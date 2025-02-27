@@ -30,8 +30,6 @@ public class PlayerCam_MLabEditor : Editor
 {
     public override void OnInspectorGUI()
     {
-        DrawDefaultInspector();
-
         PlayerCam_MLab myScript = (PlayerCam_MLab)target;
 
         if (GUILayout.Button("First Person"))
@@ -48,6 +46,8 @@ public class PlayerCam_MLabEditor : Editor
         {
             myScript.SwitchToCamType(eCamType.ThirdFixed);
         }
+        
+        DrawDefaultInspector();
     }
 }
 
@@ -63,7 +63,8 @@ public enum eCamType
 public class PlayerCam_MLab : MonoBehaviour
 {
     [Header("General Cam Settings")]
-    [SerializeField]
+    
+    [HideInInspector]
     public eCamType camType = eCamType.FirstPerson;
     
     public LayerMask firstPersonRenderMask = -1;
