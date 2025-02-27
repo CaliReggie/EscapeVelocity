@@ -98673,21 +98673,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6203304367677133244, guid: 20dd83c54b1592a4db36441848eafc5d,
         type: 3}
-      propertyPath: grappleMode
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6203304367677133244, guid: 20dd83c54b1592a4db36441848eafc5d,
-        type: 3}
-      propertyPath: grappleForce
-      value: 74
-      objectReference: {fileID: 0}
-    - target: {fileID: 6203304367677133244, guid: 20dd83c54b1592a4db36441848eafc5d,
-        type: 3}
-      propertyPath: grappleDelayTime
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 6203304367677133244, guid: 20dd83c54b1592a4db36441848eafc5d,
-        type: 3}
       propertyPath: 'predictionPoints.Array.data[0]'
       value: 
       objectReference: {fileID: 11999480}

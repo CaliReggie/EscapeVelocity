@@ -45,16 +45,20 @@ public class MomentumExtension : MonoBehaviour
 
     public MovementState GetMovementState(PlayerMovement_MLab.MovementMode movementMode)
     {
-        for (int i = 0; i < movementStates.Count; i++)
+        foreach (MovementState state in movementStates)
         {
-            if (movementStates[i].movementMode == movementMode)
-                return movementStates[i];
+            if (state.movementMode == movementMode)
+            {
+                return state;
+            }
         }
-
-        for (int i = 0; i < hardcodedMovementStates.Count; i++)
+        
+        foreach (MovementState state in hardcodedMovementStates)
         {
-            if (hardcodedMovementStates[i].movementMode == movementMode)
-                return hardcodedMovementStates[i];
+            if (state.movementMode == movementMode)
+            {
+                return state;
+            }
         }
 
         return null;
@@ -80,6 +84,8 @@ public class MomentumExtension : MonoBehaviour
         }
         else
         {
+            Debug.LogError("MovementState not found");
+            
             speedChangeFactor = -1;
         }
 

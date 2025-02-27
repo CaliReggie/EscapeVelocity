@@ -2,10 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using Dave;
-using static UnityEngine.Rendering.DebugUI;
-using System.Security.Cryptography;
-
+using PhysicsExtensions;
+using UnityEngine.Serialization;
 
 // Dave MovementLab - PlayerMovement
 ///
@@ -73,12 +71,13 @@ public class PlayerMovement_MLab : MonoBehaviour
     public float swingMaxSpeed = 17f;
     public float airMaxSpeed = 7f;
 
-    public float limitedMaxSpeed = 20f; // changes based on how fast the player needs to go
+    
 
     private float maxSpeed; // this variable changes depending on which movement mode you are in
     private float desiredMaxSpeed; // needed to smoothly change between speed limitations
     private float desiredMaxSpeedLastFrame; // the previous desired max speed
-
+    public float currentLimitedSpeed = 20f; // changes based on how fast the player needs to go
+    
     public float speedIncreaseMultiplier = 1.5f; // how fast the maxSpeed changes
     public float slopeIncreaseMultiplier = 2.5f; // how fast the maxSpeed changes on a slope
 
@@ -142,7 +141,7 @@ public class PlayerMovement_MLab : MonoBehaviour
     [HideInInspector] public bool walljumping;
 
     // these bools are changed using specific functions
-    [HideInInspector] private bool limitedSpeed;
+    [HideInInspector] private bool speedLimited;
 
     // other variables
     [HideInInspector] public float horizontalInput;
@@ -498,14 +497,14 @@ public class PlayerMovement_MLab : MonoBehaviour
             mm = MovementMode.unlimited;
 
             // this way the player can go as fast as he wants
-            desiredMaxSpeed = 1234.5678f;
+            desiredMaxSpeed = 99f;
         }
 
         // Mode - Limited
-        else if (limitedSpeed)
+        else if (speedLimited)
         {
             mm = MovementMode.limited;
-            desiredMaxSpeed = limitedMaxSpeed;
+            desiredMaxSpeed = currentLimitedSpeed;
         }
 
         // Mode - Dashing
@@ -588,9 +587,7 @@ public class PlayerMovement_MLab : MonoBehaviour
             else
                 desiredMaxSpeed = walkMaxSpeed;
         }
-
-        bool desiredMaxSpeedHasChanged = desiredMaxSpeed != desiredMaxSpeedLastFrame;
-
+        
         // minimum momentum
         if (momentumExtensionEnabled && maxSpeed < momentumExtension.minimalMomentum && mm != MovementMode.freeze)
             maxSpeed = momentumExtension.minimalMomentum;
@@ -612,9 +609,14 @@ public class PlayerMovement_MLab : MonoBehaviour
             if (momentumExtensionEnabled)
             {
                 if (mm != MovementMode.air)
+                {
                     increaseSpeedChangeFactor = momentumExtension.GetIncreaseSpeedChangeFactor(mm);
+                }
                 if (previousMovementMode != MovementMode.air)
+                {
                     decreaseSpeedChangeFactor = momentumExtension.GetDecreaseSpeedChangeFactor(previousMovementMode);
+                }
+                    
             }
         }
 
@@ -678,12 +680,12 @@ public class PlayerMovement_MLab : MonoBehaviour
 
     public void EnableLimitedState(float speedLimit)
     {
-        limitedMaxSpeed = speedLimit;
-        limitedSpeed = true;
+        currentLimitedSpeed = speedLimit;
+        speedLimited = true;
     }
     public void DisableLimitedState()
     {
-        limitedSpeed = false;
+        speedLimited = false;
     }
 
     #endregion

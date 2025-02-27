@@ -60,7 +60,7 @@ public class GrapplingRope_MLab : MonoBehaviour
     void DrawRope()
     {
         // if not grappling, don't draw rope
-        if (!grappling.IsGrappling(ropeIndex))
+        if (!grappling.IsHooking(ropeIndex))
         {
             currentGrapplePosition = grappling.GetGunTipPosition(ropeIndex);
 

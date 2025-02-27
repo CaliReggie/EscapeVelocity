@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 
 // Dave MovementLab - Grappling
@@ -55,12 +58,17 @@ public class Grappling_MLab: MonoBehaviour
     public float grappleDelayTime = 0.5f; // the time you freeze in the air before grappling
     public float grappleForce = 20f;
     public float grappleUpwardForce = 5f;
-    public float grappleDistanceMultiplier = 0.1f; // how much more force you gain when grappling toward objects that are further away
+    [FormerlySerializedAs("grappleDistanceMultiplier")]
+    public float grappleDistanceHeightMultiplier = 0.1f; // how much more force you gain when grappling toward objects that are further away
 
     public float grapplingCd = 2.5f; // cooldown of your grappling ability
     private float grapplingCdTimer;
 
     public float overshootYAxis = 2f; // adjust the trajectory hight of the player when grappling (only in precise mode)
+    
+    public bool freezeOnGrappleNotHit = true;
+    
+    public bool useChargeOnHookNotHit = true;
 
     public enum GrappleMode
     {
@@ -72,6 +80,12 @@ public class Grappling_MLab: MonoBehaviour
     public KeyCode swingKey = KeyCode.Mouse0;
     public KeyCode swingKey2 = KeyCode.Mouse1;
 
+    public InputActionReference leftHookAction;
+    
+    public InputActionReference rightHookAction;
+    
+    public InputActionReference altHookUltilityAction;
+
     private Rigidbody rb;
 
     private List<Vector3> grapplePoints; // the point you're grappling to / swinging on
@@ -81,14 +95,17 @@ public class Grappling_MLab: MonoBehaviour
     //list of local position of hit point on object
     private List<Vector3> grappleLocalPoints;
 
-    private bool grappleExecuted;
+    
 
     private PlayerMovement_MLab pm;
 
+    //added grapples executed. Used to be just one bool, would cause cancelling one to say both aren't executed
+    [HideInInspector] public List<bool> grapplesExecuted;
     [HideInInspector] public List<bool> grapplesActive;
     [HideInInspector] public List<bool> swingsActive;
 
     [Header("Swinging predictions")]
+    public float playerHeight = 2f;
     public int amountOfSwingPoints = 1;
     public List<Transform> predictionPoints;
     public List<Transform> pointAimers;
@@ -110,6 +127,20 @@ public class Grappling_MLab: MonoBehaviour
         ListSetup();
     }
 
+    private void OnEnable()
+    {
+        leftHookAction.action.Enable();
+        rightHookAction.action.Enable();
+        altHookUltilityAction.action.Enable();
+    }
+    
+    private void OnDisable()
+    {
+        leftHookAction.action.Disable();
+        rightHookAction.action.Disable();
+        altHookUltilityAction.action.Disable();
+    }
+
     private void ListSetup()
     {
         hooksActive = new List<bool>();
@@ -120,6 +151,7 @@ public class Grappling_MLab: MonoBehaviour
         grappleLocalPoints = new List<Vector3>();
         joints = new List<SpringJoint>();
 
+        grapplesExecuted = new List<bool>();
         grapplesActive = new List<bool>();
         swingsActive = new List<bool>();
 
@@ -131,6 +163,7 @@ public class Grappling_MLab: MonoBehaviour
             grappleLocalPoints.Add(Vector3.zero);
             joints.Add(null);
             grapplePoints.Add(Vector3.zero);
+            grapplesExecuted.Add(false);
             grapplesActive.Add(false);
             swingsActive.Add(false);
         }
@@ -152,23 +185,22 @@ public class Grappling_MLab: MonoBehaviour
 
     private void MyInput()
     {
-        // stopping is always possible
-        if (Input.GetKeyUp(swingKey)) TryStopGrapple(0);
-        if (Input.GetKeyUp(swingKey2)) TryStopGrapple(1);
-        if (Input.GetKeyUp(swingKey)) StopSwing(0);
-        if (Input.GetKeyUp(swingKey2)) StopSwing(1);
-
-        // starting swings or grapples depends on whether or not shift is pressed
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (altHookUltilityAction.action.IsPressed())
         {
-            if (Input.GetKeyDown(swingKey)) StartGrapple(0);
-            if (Input.GetKeyDown(swingKey2)) StartGrapple(1);
+            if (leftHookAction.action.triggered) StartGrapple(0);
+            if (rightHookAction.action.triggered) StartGrapple(1);
         }
         else
         {
-            if (Input.GetKeyDown(swingKey)) StartSwing(0);
-            if (Input.GetKeyDown(swingKey2)) StartSwing(1);
+            if (leftHookAction.action.triggered) StartSwing(0);
+            if (rightHookAction.action.triggered) StartSwing(1);
         }
+        
+        if (!leftHookAction.action.IsPressed()) TryStopGrapple(0);
+        if (!rightHookAction.action.IsPressed()) TryStopGrapple(1);
+        if (!leftHookAction.action.IsPressed()) StopSwing(0);
+        if (!rightHookAction.action.IsPressed()) StopSwing(1);
+        
     }
 
     #region Swinging
@@ -184,6 +216,9 @@ public class Grappling_MLab: MonoBehaviour
                 //don't show that prediction point if it's being used
                 predictionPoints[i].gameObject.SetActive(false);
                 predictionPoints[i].position = Vector3.zero;
+                
+                //empty raycast hit so it doesn't get used
+                predictionHits[i] = new RaycastHit();
             }
             else
             {
@@ -231,14 +266,39 @@ public class Grappling_MLab: MonoBehaviour
     {
         if (!pm.IsStateAllowed(PlayerMovement_MLab.MovementMode.swinging))
             return;
-
+        
         // no swinging point can be found
-        if (!TargetPointFound(swingIndex)) return;
-
+        if (!TargetPointFound(swingIndex))
+        {
+            if (useChargeOnHookNotHit)
+            {
+                // the grapple point is now just a point in the air
+                /// calculated by taking your cameras position + the forwardDirection times your maxGrappleDistance
+                grapplePoints[swingIndex] = cam.position + cam.forward * maxGrappleDistance;
+                
+                //setting grapple active for rope to show
+                swingsActive[swingIndex] = true;
+                UpdateHooksActive();
+                
+                //no grapple object
+                grappleObjects[swingIndex] = null;
+                
+                //no local point
+                grappleLocalPoints[swingIndex] = Vector3.zero;
+                
+                StartCoroutine(StopFailedSwing(swingIndex, 0.15f));
+            }
+            
+            return;
+        }
+        
         // cancel all active grapples
         CancelActiveGrapples();
         pm.ResetRestrictions();
-
+        
+        //if Stopfailedswing is running, stop it
+        StopCoroutine(nameof(StopFailedSwing));
+        
         // this will cause the PlayerMovement script to enter MovementMode.swinging
         pm.swinging = true;
 
@@ -284,6 +344,14 @@ public class Grappling_MLab: MonoBehaviour
 
         // destroy the SpringJoint again after you stopped swinging 
         Destroy(joints[swingIndex]);
+    }
+    
+    private IEnumerator StopFailedSwing(int swingIndex, float waitTime)
+    {
+        yield return new WaitForSeconds(waitTime);
+        
+        swingsActive[swingIndex] = false;
+        UpdateHooksActive();
     }
 
     #endregion
@@ -390,23 +458,40 @@ public class Grappling_MLab: MonoBehaviour
             // call the ExecuteGrapple() function after the grappleDelayTime is over
             StartCoroutine(ExecuteGrapple(grappleIndex));
         }
-        // Case 2 - target point not found
+        // Case 2 - target point not found, preferential freeze and show grapple point
         else
         {
             // print("grapple: target missed");
 
-            // we still want to freeze the player for a bit
-            pm.freeze = true;
+            if (freezeOnGrappleNotHit)
+            {
+                // we still want to freeze the player for a bit
+                pm.freeze = true;
+            }
+            
+            //if using a charge, we want to use the charge and show like the player is attempting to grapple air
+            if (useChargeOnHookNotHit)
+            {
+                // set cooldown
+                grapplingCdTimer = grapplingCd;
 
-            // set cooldown
-            grapplingCdTimer = grapplingCd;
+                // the grapple point is now just a point in the air
+                /// calculated by taking your cameras position + the forwardDirection times your maxGrappleDistance
+                grapplePoints[grappleIndex] = cam.position + cam.forward * maxGrappleDistance;
+                
+                //setting grapple active for rope to show
+                grapplesActive[grappleIndex] = true;
+                UpdateHooksActive();
+                
+                //no grapple object
+                grappleObjects[grappleIndex] = null;
+                
+                //no local point
+                grappleLocalPoints[grappleIndex] = Vector3.zero;
 
-            // the grapple point is now just a point in the air
-            /// calculated by taking your cameras position + the forwardDirection times your maxGrappleDistance
-            grapplePoints[grappleIndex] = cam.position + cam.forward * maxGrappleDistance;
-
-            // call the StopGrapple() function after the grappleDelayTime is over
-            StartCoroutine(StopGrapple(grappleIndex, grappleDelayTime));
+                // call the StopGrapple() function after the grappleDelayTime is over
+                StartCoroutine(StopGrapple(grappleIndex, grappleDelayTime));
+            }
         }
     }
 
@@ -420,15 +505,14 @@ public class Grappling_MLab: MonoBehaviour
         if(grappleMode == GrappleMode.Precise)
         {
             // find the lowest point of the player
-            Vector3 lowestPoint = new Vector3(transform.position.x, transform.position.y - 1f, transform.position.z);
+            Vector3 lowestPoint = new Vector3(transform.position.x, transform.position.y - (playerHeight / 2), transform.position.z);
 
             // calculate how much higher the grapple point is relative to the player
             float grapplePointRelativeYPos = grapplePoints[grappleIndex].y - lowestPoint.y;
-            // calculate the highest y position that the player should reach when grappling
-            float highestPointOfArc = grapplePointRelativeYPos + overshootYAxis;
-
-            // no upwards force when point is below player
-            if (grapplePointRelativeYPos < 0) highestPointOfArc = overshootYAxis;
+            
+            //if relative y offset is above relative player height, add all needed height, otherwise add less
+            float highestPointOfArc = grapplePointRelativeYPos >= playerHeight ?
+                grapplePointRelativeYPos + overshootYAxis : overshootYAxis / 2;
 
             // print("trying to grapple to " + grapplePointRelativeYPos + " which arc " + highestPointOfArc);
 
@@ -444,25 +528,25 @@ public class Grappling_MLab: MonoBehaviour
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
 
             // the further the grapple point is away, the higher the distanceBoost should be
-            float distanceBoost = Vector3.Distance(transform.position, grapplePoints[grappleIndex]) * grappleDistanceMultiplier;
+            float distanceBoost = Vector3.Distance(transform.position, grapplePoints[grappleIndex]) * grappleDistanceHeightMultiplier;
 
             // apply force to your rigidbody in the direction towards the grapplePoint
-            rb.AddForce(direction * grappleForce, ForceMode.Impulse);
+            rb.AddForce(direction * grappleForce , ForceMode.Impulse);
             // also apply upwards force that scales with the distanceBoost
-            rb.AddForce(Vector3.up * grappleUpwardForce * distanceBoost, ForceMode.Impulse);
+            rb.AddForce(Vector3.up * (grappleUpwardForce * distanceBoost), ForceMode.Impulse);
             /// -> make sure to use ForceMode.Impulse because you're only applying force once
         }
 
         // Stop grapple after a second, (by this time you'll already have travelled most of the distance anyway)
         // StartCoroutine(StopGrapple(grappleIndex, 1f));
-
-        grappleExecuted = true;
+        
+        grapplesExecuted[grappleIndex] = true;
     }
 
     private void TryStopGrapple(int grappleIndex)
     {
         // can't stop grapple if not even executed
-        if (!grappleExecuted) return;
+        if (!grapplesExecuted[grappleIndex]) return;
 
         StartCoroutine(StopGrapple(grappleIndex));
     }
@@ -476,8 +560,8 @@ public class Grappling_MLab: MonoBehaviour
 
         pm.ResetRestrictions();
 
-        // reset the grappleExecuted bool
-        grappleExecuted = false;
+        // reset the grapplesExecuted bool
+        grapplesExecuted[grappleIndex] = false;
 
         grapplesActive[grappleIndex] = false;
         
@@ -512,7 +596,7 @@ public class Grappling_MLab: MonoBehaviour
 
     public void OnObjectTouch()
     {
-        if (grappleExecuted)
+        if (AnyGrappleExecuted())
         {
             // print("grapple: objecttouch");
             CancelActiveGrapples();
@@ -552,9 +636,17 @@ public class Grappling_MLab: MonoBehaviour
 
     // a bool to check if we're currently swinging or grappling
     /// function needed and called from the GrapplingRope_MLab script
-    public bool IsGrappling(int index)
+    public bool IsHooking(int index)
     {
         return hooksActive[index];
+    }
+    
+    private bool AnyGrappleExecuted()
+    {
+        for (int i = 0; i < grapplesExecuted.Count; i++)
+            if (grapplesExecuted[i]) return true;
+        
+        return false;
     }
 
     // a Vetor3 to quickly access the grapple point

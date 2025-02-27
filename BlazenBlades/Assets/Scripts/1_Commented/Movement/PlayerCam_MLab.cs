@@ -32,17 +32,17 @@ public class PlayerCam_MLabEditor : Editor
     {
         PlayerCam_MLab myScript = (PlayerCam_MLab)target;
 
-        if (GUILayout.Button("First Person"))
+        if (GUILayout.Button("Switch First Person"))
         {
             myScript.SwitchToCamType(eCamType.FirstPerson);
         }
 
-        if (GUILayout.Button("Third Orbit"))
+        if (GUILayout.Button("Switch Third Orbit"))
         {
             myScript.SwitchToCamType(eCamType.ThirdOrbit);
         }
 
-        if (GUILayout.Button("Third Fixed"))
+        if (GUILayout.Button("Switch Third Fixed"))
         {
             myScript.SwitchToCamType(eCamType.ThirdFixed);
         }
@@ -64,7 +64,6 @@ public class PlayerCam_MLab : MonoBehaviour
 {
     [Header("General Cam Settings")]
     
-    [HideInInspector]
     public eCamType camType = eCamType.FirstPerson;
     
     public LayerMask firstPersonRenderMask = -1;
