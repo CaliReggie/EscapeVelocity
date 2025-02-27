@@ -21,8 +21,7 @@ public class Detector_MLab : MonoBehaviour
 
     [Header("References")]
     public PlayerMovement_MLab pm;
-    public Transform camT;
-    public Transform camHolder;
+    public Transform orientation;
     public LayerMask whatIsGround;
 
     [Header("Jump Predictions")]
@@ -64,7 +63,7 @@ public class Detector_MLab : MonoBehaviour
         RaycastHit viewRayHit;
         string predictionState;
 
-        if (Physics.Raycast(camT.position, camHolder.forward, out viewRayHit, pm.maxJumpRange, whatIsGround))
+        if (Physics.Raycast(orientation.position, orientation.forward, out viewRayHit, pm.maxJumpRange, whatIsGround))
         {
             // Case 1 - raycast hits (in maxDistance)
             markerSphere.position = viewRayHit.point;
@@ -74,12 +73,12 @@ public class Detector_MLab : MonoBehaviour
             precisionTargetFound = true;
         }
 
-        else if (Physics.SphereCast(camT.position, 1f, camHolder.forward, out viewRayHit, 10f, whatIsGround))
+        else if (Physics.SphereCast(orientation.position, 1f, orientation.forward, out viewRayHit, 10f, whatIsGround))
         {
             // Case 2 - raycast hits (out of maxDistance)
 
             // calculate nearest possible point
-            Vector3 maxRangePoint = camT.position + camHolder.forward * pm.maxJumpRange;
+            Vector3 maxRangePoint = orientation.position + orientation.forward * pm.maxJumpRange;
 
             RaycastHit wallHit;
             if (Physics.Raycast(maxRangePoint, -viewRayHit.normal, out wallHit, 4f, whatIsGround))
@@ -93,7 +92,7 @@ public class Detector_MLab : MonoBehaviour
             {
                 someSecondSphere.position = viewRayHit.point;
 
-                if (Vector3.Distance(camT.position, viewRayHit.point) <= pm.maxJumpRange)
+                if (Vector3.Distance(orientation.position, viewRayHit.point) <= pm.maxJumpRange)
                 {
                     predictionState = "out of distance, hitPoint";
                     markerSphere.position = viewRayHit.point;
@@ -103,7 +102,7 @@ public class Detector_MLab : MonoBehaviour
                 else
                 {
                     predictionState = "out of distance, can't predict point..."; // -> same as case 3
-                    markerSphere.position = camT.position + camHolder.forward * pm.maxJumpRange;
+                    markerSphere.position = orientation.position + orientation.forward * pm.maxJumpRange;
 
                     precisionTargetFound = false;
                 }
@@ -115,7 +114,7 @@ public class Detector_MLab : MonoBehaviour
             // Case 3 - raycast completely misses
             // -> Normal Jump
             // Gizmos.DrawWireSphere(cam.transform.position + camHolder.forward * maxJumpRange, .5f);
-            markerSphere.position = camT.position + camHolder.forward * pm.maxJumpRange;
+            markerSphere.position = orientation.position + orientation.forward * pm.maxJumpRange;
             predictionState = "complete miss";
 
             precisionTargetFound = false;

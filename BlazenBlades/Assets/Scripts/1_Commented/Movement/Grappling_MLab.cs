@@ -192,7 +192,7 @@ public class Grappling_MLab: MonoBehaviour
 
                 // check if direct hit is available
                 RaycastHit directHit;
-                Physics.Raycast(cam.position, cam.forward, out directHit, maxSwingDistance, whatIsGrappleable);
+                Physics.Raycast(orientation.position, cam.forward, out directHit, maxSwingDistance, whatIsGrappleable);
 
                 Vector3 realHitPoint = Vector3.zero;
 

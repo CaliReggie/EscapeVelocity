@@ -98425,11 +98425,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 211337961086038659, guid: 20dd83c54b1592a4db36441848eafc5d,
-        type: 3}
-      propertyPath: Lens.FieldOfView
-      value: 100
-      objectReference: {fileID: 0}
     - target: {fileID: 6203304367237142539, guid: 20dd83c54b1592a4db36441848eafc5d,
         type: 3}
       propertyPath: m_Name
@@ -98495,41 +98490,6 @@ PrefabInstance:
       propertyPath: 'predictionPoints.Array.data[1]'
       value: 
       objectReference: {fileID: 150569742}
-    - target: {fileID: 6203304367693416331, guid: 20dd83c54b1592a4db36441848eafc5d,
-        type: 3}
-      propertyPath: field of view
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 6203304367693416332, guid: 20dd83c54b1592a4db36441848eafc5d,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.3959999
-      objectReference: {fileID: 0}
-    - target: {fileID: 6203304367693416332, guid: 20dd83c54b1592a4db36441848eafc5d,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6203304367693416332, guid: 20dd83c54b1592a4db36441848eafc5d,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6203304367693416332, guid: 20dd83c54b1592a4db36441848eafc5d,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6203304367693416332, guid: 20dd83c54b1592a4db36441848eafc5d,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6203304367693416332, guid: 20dd83c54b1592a4db36441848eafc5d,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6203304368605208344, guid: 20dd83c54b1592a4db36441848eafc5d,
         type: 3}
       propertyPath: text_speed
@@ -98545,21 +98505,6 @@ PrefabInstance:
       propertyPath: text_moveState
       value: 
       objectReference: {fileID: 2106461194}
-    - target: {fileID: 6203304368605208345, guid: 20dd83c54b1592a4db36441848eafc5d,
-        type: 3}
-      propertyPath: camType
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6203304368605208345, guid: 20dd83c54b1592a4db36441848eafc5d,
-        type: 3}
-      propertyPath: firstPersonRenderMask.m_Bits
-      value: 1109505
-      objectReference: {fileID: 0}
-    - target: {fileID: 6203304368605208345, guid: 20dd83c54b1592a4db36441848eafc5d,
-        type: 3}
-      propertyPath: thirdPersonRenderMask.m_Bits
-      value: 3206657
-      objectReference: {fileID: 0}
     - target: {fileID: 6203304368605208346, guid: 20dd83c54b1592a4db36441848eafc5d,
         type: 3}
       propertyPath: text_wallState
@@ -98585,11 +98530,6 @@ PrefabInstance:
       propertyPath: renderer_markerSphere
       value: 
       objectReference: {fileID: 918628050}
-    - target: {fileID: 7607366761637655524, guid: 20dd83c54b1592a4db36441848eafc5d,
-        type: 3}
-      propertyPath: m_Layer
-      value: 21
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
