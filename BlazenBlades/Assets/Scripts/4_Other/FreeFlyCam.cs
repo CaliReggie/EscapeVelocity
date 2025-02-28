@@ -73,7 +73,7 @@ public class FreeFlyCam : MonoBehaviour
 
         xRotation = Mathf.Clamp(xRotation, -89f, 89f);
 
-        // rotate cam
+        // rotate realCam
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
     }
 

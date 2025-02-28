@@ -113,7 +113,7 @@ public class Detector_MLab : MonoBehaviour
         {
             // Case 3 - raycast completely misses
             // -> Normal Jump
-            // Gizmos.DrawWireSphere(cam.transform.position + camHolder.forward * maxJumpRange, .5f);
+            // Gizmos.DrawWireSphere(realCam.transform.position + camHolder.forward * maxJumpRange, .5f);
             markerSphere.position = orientation.position + orientation.forward * pm.maxJumpRange;
             predictionState = "complete miss";
 

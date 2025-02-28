@@ -27,6 +27,8 @@ using UnityEngine.Serialization;
 public class PlayerMovement_MLab : MonoBehaviour
 {
     public float playerHeight = 2f;
+    
+    public float camEffectResetTime = 0.1f;
 
     /// this is an empty gameObject inside the player, it is rotated by the camera
     /// -> keeps track of where the player is looking -> orientation.forward is the direction you're looking in
@@ -435,7 +437,7 @@ public class PlayerMovement_MLab : MonoBehaviour
         if (tierTwoRestricted)
         {
             tierTwoRestricted = false;
-            cam.ResetFov();
+            cam.DoFov(-1, camEffectResetTime);
         }
 
         DisableLimitedState();
@@ -622,9 +624,6 @@ public class PlayerMovement_MLab : MonoBehaviour
 
         desiredMaxSpeedLastFrame = desiredMaxSpeed;
         movementModeLastFrame = mm;
-
-        // if you're walking or sprinting, the head bob movement of the camer should be enabled
-        cam.hbEnabled = mm == MovementMode.walking || mm == MovementMode.sprinting;
     }
 
     private bool isIncreasingMaxSpeed;

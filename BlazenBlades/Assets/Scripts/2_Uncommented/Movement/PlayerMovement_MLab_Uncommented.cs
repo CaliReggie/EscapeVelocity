@@ -389,9 +389,6 @@ public class PlayerMovement_MLab_Uncommented : MonoBehaviour
                 maxSpeed = sprintMaxSpeed;
         }
 
-        // handle head bob movement
-        cam.hbEnabled = mm == MovementMode.walking || mm == MovementMode.sprinting ? true : false;
-
         // uncrouch
         if (crouchStarted && mm != MovementMode.crouching)
         {

@@ -28,6 +28,9 @@ using TMPro;
 
 public class WallRunning_MLab : MonoBehaviour
 {
+    public float wallRunFOV = 110f; // the fov of the camera while wallrunning
+    public float wallRunFOVChangeSpeed = 0.2f; // how fast the fov changes while wallrunning
+    
     [Header("Toggle Abilites")]
     public bool EnablePrecisionMode = true;
 
@@ -376,13 +379,13 @@ public class WallRunning_MLab : MonoBehaviour
         wallRemembered = false;
 
         // increase camera fov
-        cam.DoFov(110f);
+        cam.DoFov(110f, wallRunFOVChangeSpeed);
 
         RememberLastWall();
 
         // set camera tilt
-        if (wallRight) cam.DoTilt(5f);
-        if(wallLeft) cam.DoTilt(-5f);
+        if (wallRight) cam.DoTilt(5f ,-1);
+        if(wallLeft) cam.DoTilt(-5f, -1);
     }
 
     private void WallRunningMovement()
@@ -440,7 +443,7 @@ public class WallRunning_MLab : MonoBehaviour
         pm.maxYSpeed = -1;
 
         // reset camera fov and tilt
-        cam.ResetFov();
+        cam.DoFov(-1, wallRunFOVChangeSpeed);
         cam.ResetTilt();
     }
 
@@ -469,8 +472,9 @@ public class WallRunning_MLab : MonoBehaviour
 
         RememberLastWall();
 
+        //CHANGE TODO: THIS
         // shake the camera, just a cool visual effect
-        cam.DoShake(1, 1);
+        // cam.DoShake(1, 1);
     }
 
     private void ClimbingMovement()
@@ -518,12 +522,14 @@ public class WallRunning_MLab : MonoBehaviour
         // no longer readyToClimb until the wall is sucessfully exited
         // readyToClimb = false;
 
-        // reset cam shake
-        cam.ResetShake();
+        //CHANGE TODO: THIS
+        // reset realCam shake
+        // cam.ResetShake();
 
-        // reset cam fov and tilt
-        cam.ResetFov();
-        cam.ResetTilt();
+        //CHANGE
+        // reset realCam fov and tilt
+        // cam.ResetFov();
+        // cam.ResetTilt();
 
         vaultClimbStarted = false;
     }

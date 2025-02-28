@@ -44,6 +44,7 @@ public class Dashing_MLab : MonoBehaviour
 
     [Header("Effects")]
     public float dashFov = 95f;
+    public float dashFOVChangeSpeed = 0.2f;
 
     [Header("Cooldown")]
     public float dashCd = 1.5f; // cooldown of your dash ability
@@ -98,7 +99,7 @@ public class Dashing_MLab : MonoBehaviour
         pm.dashing = true;
 
         // increase the fov of the camera (graphical effect)
-        cam.DoFov(dashFov, .2f);
+        cam.DoFov(dashFov, dashFOVChangeSpeed);
 
         Transform forwardT;
 
@@ -146,7 +147,7 @@ public class Dashing_MLab : MonoBehaviour
         pm.maxYSpeed = -1;
 
         // reset the fov of your camera
-        cam.ResetFov();
+        cam.DoFov(-1, dashFOVChangeSpeed);
 
         // if you disabled it before, activate the gravity of the rigidbody again
         if (disableGravity)

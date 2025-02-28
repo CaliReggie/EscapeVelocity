@@ -1,18 +1,18 @@
 using System;
 using System.Collections;
+using Unity.Cinemachine;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 using UnityEngine.InputSystem;
 using UnityEditor;
-using UnityEngine.Serialization; // I use DoTween for the camera effects, so this reference is needed
+using UnityEngine.Serialization;
 
 
 // Dave MovementLab - PlayerCam
 ///
 // Content:
 /// - first person camera rotation
-/// - camera effects such as fov changes, tilt or cam shake
+/// - camera effects such as fov changes, tilt or realCam shake
 /// - headBob effect while walking or sprinting
 ///
 // Note:
@@ -70,57 +70,52 @@ public class PlayerCam_MLab : MonoBehaviour
     
     public LayerMask thirdPersonRenderMask = -1;
     
-    [Header("First Person Cam")]
-    
-    public GameObject firstPersonCamGameObject;
+    [Header("First Person Cam Settings")]
     
     public float firstPersonLookSpeedMult;
     
-    [Header("Third Person Orbit Cam")]
-
-    public GameObject thirdPersonOrbitGameObject;
+    [Header("Third Person Orbit Cam Settings")]
     
     public float playerRotSpeed = 1;
     
-    [Header("Third person Fixed Cam")]
-    
-    public GameObject thirdPersonFixedGameObject;
-    
-    public Transform thirdPersonFixedCamOrientation;
+    [Header("Third person Fixed Cam Settings")]
     
     public float thirdPersonFixedLookSpeedMult;
     
-    [Header("Grapple View Management")]
-    
-    public GameObject grappleRig;
-    
-    [Header("Input Assignable")]
+    [Header("Input References")]
     
     public InputActionReference lookAction;
     
     public InputActionReference moveAction;
     
-    [Header("Assignables")]
-    public Camera cam; // the camera (inside the cameraHolder)
-    public Transform orientation; // reference to the orientation of the player
+    [Header("Cam References")]
+    
+    public Camera realCam; 
+    
+    public CinemachineCamera firstPersonCinCam;
+    
+    public CinemachineCamera thirdPersonOrbitCinCam;
+    
+    public CinemachineCamera thirdPersonFixedCam;
+    
+    [Header("Player References")]
+    
+    public Transform orientation;
+    
     public Transform player;
+    
     public Transform playerObj;
+    
+    public Transform thirdPersonFixedCamOrientation;
+    
+    public Transform grappleRig;
 
-    [Header("Effects")]
-    public float baseFov = 90f;
-    public float fovTransitionTime = 0.25f; // how fast the cameras fov changes
-    public float tiltTransitionTime = 0.25f; // how fast the cameras tilt changes
-
-    [Header("Effects - HeadBob")]
-    [HideInInspector] public bool hbEnabled; // this bool is changed by the PlayerMovement script, depending on the MovementState
-    public float hbAmplitude = 0.5f; // how large the headBob effect is
-    public float hbFrequency = 12f; // how fast the headBob effect plays
-
-
-    // the rest are just private variables to store information
-
-    private float hbToggleSpeed = 3f; // if the players speed is smaller than the hbToggleSpeed, the headBob effect wont play
-    private Vector3 hbStartPos;
+    [Header("Cam Effects Settings")]
+    public float baseFov = 100f;
+    public float fovTransitionTime = 0.25f;
+    public float baseTilt = 0f;
+    public float tiltTransitionTime = 0.25f;
+    
     private Rigidbody rb;
     
     private Vector2 lookInput;
@@ -158,9 +153,6 @@ public class PlayerCam_MLab : MonoBehaviour
 
     private void Start()
     {
-        // store the startPosition of the camera
-        hbStartPos = cam.transform.localPosition;
-
         // get the components
         rb = GetComponent<Rigidbody>();
 
@@ -193,14 +185,6 @@ public class PlayerCam_MLab : MonoBehaviour
         ManageCamera();
         
         ManageGrappleGear();
-
-        // if headBob is enabled, start the CheckMotion() function
-        /// which then starts -> PlayMotion() and ResetPosition()
-        if (hbEnabled)
-        {
-            CheckMotion();
-            cam.transform.LookAt(FocusTarget());
-        }
     }
     
     private void GetInput()
@@ -212,9 +196,9 @@ public class PlayerCam_MLab : MonoBehaviour
 
     public void SwitchToCamType(eCamType toCamType)
     {
-        firstPersonCamGameObject.SetActive( false);
-        thirdPersonOrbitGameObject.SetActive( false);
-        thirdPersonFixedGameObject.SetActive( false);
+        firstPersonCinCam.gameObject.SetActive( false);
+        thirdPersonOrbitCinCam.gameObject.SetActive( false);
+        thirdPersonFixedCam.gameObject.SetActive( false);
 
         switch (toCamType)
         {
@@ -222,11 +206,11 @@ public class PlayerCam_MLab : MonoBehaviour
                 
                 camType = eCamType.FirstPerson;
                 
-                cam.cullingMask = firstPersonRenderMask;
+                realCam.cullingMask = firstPersonRenderMask;
                 
-                firstPersonCamGameObject.transform.position = player.position;
+                firstPersonCinCam.transform.position = player.position;
                 
-                firstPersonCamGameObject.SetActive( true);
+                firstPersonCinCam.gameObject.SetActive( true);
                 
                 break;
             
@@ -234,9 +218,9 @@ public class PlayerCam_MLab : MonoBehaviour
                 
                 camType = eCamType.ThirdOrbit;
                 
-                cam.cullingMask = thirdPersonRenderMask;
+                realCam.cullingMask = thirdPersonRenderMask;
                 
-                thirdPersonOrbitGameObject.SetActive( true);
+                thirdPersonOrbitCinCam.gameObject.SetActive( true);
                 
                 break;
             
@@ -244,9 +228,9 @@ public class PlayerCam_MLab : MonoBehaviour
                 
                 camType = eCamType.ThirdFixed;
                 
-                cam.cullingMask = thirdPersonRenderMask;
+                realCam.cullingMask = thirdPersonRenderMask;
                 
-                thirdPersonFixedGameObject.SetActive( true);
+                thirdPersonFixedCam.gameObject.SetActive( true);
                 
                 break;
         }
@@ -265,9 +249,9 @@ public class PlayerCam_MLab : MonoBehaviour
                 // make sure that you can't look up or down more than 90* degrees
                 firstPersonXRot = Mathf.Clamp(firstPersonXRot, -89f, 89f);
                 
-                firstPersonCamGameObject.transform.position = player.position;
+                firstPersonCinCam.transform.position = player.position;
                 
-                firstPersonCamGameObject.transform.rotation = Quaternion.Euler(firstPersonXRot, firstPersonYRot, 0);
+                firstPersonCinCam.transform.rotation = Quaternion.Euler(firstPersonXRot, firstPersonYRot, 0);
                 
                 //rotate player object and orientation along the y axis
                 playerObj.rotation = Quaternion.Euler(0, firstPersonYRot, 0);
@@ -276,8 +260,8 @@ public class PlayerCam_MLab : MonoBehaviour
                 break;
             
             case eCamType.ThirdOrbit:
-                Vector3 orbitViewDir = player.position - new Vector3(thirdPersonOrbitGameObject.transform.position.x,
-                    player.position.y, thirdPersonOrbitGameObject.transform.position.z);
+                Vector3 orbitViewDir = player.position - new Vector3(thirdPersonOrbitCinCam.transform.position.x,
+                    player.position.y, thirdPersonOrbitCinCam.transform.position.z);
                 
                 orbitViewDir.y = 0;
 
@@ -319,136 +303,210 @@ public class PlayerCam_MLab : MonoBehaviour
         {
             case eCamType.FirstPerson:
                 
-                grappleRig.transform.rotation = Quaternion.Euler(firstPersonXRot, firstPersonYRot, 0);
+                grappleRig.rotation = Quaternion.Euler(firstPersonXRot, firstPersonYRot, 0);
                 
                 break;
             
             case eCamType.ThirdOrbit:
                 
-                Vector3 orbitViewDir = player.position - thirdPersonOrbitGameObject.transform.position;
+                Vector3 orbitViewDir = player.position - thirdPersonOrbitCinCam.transform.position;
                 
-                grappleRig.transform.rotation = Quaternion.LookRotation(orbitViewDir);
+                grappleRig.rotation = Quaternion.LookRotation(orbitViewDir);
                 
                 break;
             
             case eCamType.ThirdFixed:
                 
-                grappleRig.transform.rotation = Quaternion.Euler(thirdFixedXRot, thirdFixedYRot, 0);
+                grappleRig.rotation = Quaternion.Euler(thirdFixedXRot, thirdFixedYRot, 0);
                 
                 break;
         }
     }
 
 
-    /// double click the field below to show all fov, tilt and cam shake code
+    /// double click the field below to show all fov, tilt and realCam shake code
     /// Note: For smooth transitions I use the free DoTween Asset!
     #region Fov, Tilt and CamShake
 
     /// function called when starting to wallrun or starting to dash
     /// a simple function that just takes in an endValue, and then smoothly sets the cameras fov to this end value
-    public void DoFov(float endValue, float transitionTime = -1)
+    public void DoFov(float endValue = -1, float transitionTime = -1)
     {
-        if(transitionTime == -1)
-            cam.DOFieldOfView(endValue, fovTransitionTime);
-
+        //if end value is -1, set to base
+        if (endValue == -1) endValue = baseFov;
+        
+        //if transition time is -1, instantly set fov, otherwise use time
+        if (transitionTime == -1)
+        {
+            SetFOV(endValue);
+        }
         else
-            cam.DOFieldOfView(endValue, transitionTime);
+        {
+            //Start coroutine to change fov
+            StartCoroutine(ChangeFOV(endValue, transitionTime));
+        }
+    }
+    
+    private void SetFOV(float fov)
+    {
+        //stop coroutine if running
+        
+        StopCoroutine(nameof(ChangeFOV));
+        
+        //Can simply get cam and set fov to fov
+        switch (camType)
+        {
+            case eCamType.FirstPerson:
+                firstPersonCinCam.Lens.FieldOfView = fov;
+                break;
+            case eCamType.ThirdOrbit:
+                thirdPersonOrbitCinCam.Lens.FieldOfView = fov;
+                break;
+            case eCamType.ThirdFixed:
+                thirdPersonFixedCam.Lens.FieldOfView = fov;
+                break;
+        }
     }
 
-    public void ResetFov()
+    private void ResetFov()
     {
-        cam.DOFieldOfView(baseFov, fovTransitionTime);
+        //Can simply get cam and set fov to baseFov
+        switch (camType)
+        {
+            case eCamType.FirstPerson:
+                firstPersonCinCam.Lens.FieldOfView = baseFov;
+                break;
+            case eCamType.ThirdOrbit:
+                thirdPersonOrbitCinCam.Lens.FieldOfView = baseFov;
+                break;
+            case eCamType.ThirdFixed:
+                thirdPersonFixedCam.Lens.FieldOfView = baseFov;
+                break;
+        }
     }
-
-    /// function called when starting to wallrun
-    /// smoothly tilts the camera
-    public void DoTilt(float zTilt)
+    
+    private IEnumerator ChangeFOV(float endValue, float transitionTime)
     {
-        cam.transform.DOLocalRotate(new Vector3(0, 0, zTilt), tiltTransitionTime);
+        CinemachineCamera cam = null;
+        
+        Debug.Log("Getting cam");
+        
+        switch (camType)
+        {
+            case eCamType.FirstPerson:
+                cam = firstPersonCinCam;
+                break;
+            case eCamType.ThirdOrbit:
+                cam = thirdPersonOrbitCinCam;
+                break;
+            case eCamType.ThirdFixed:
+                cam = thirdPersonFixedCam;
+                break;
+            default:
+                Debug.LogError("No cam type set in ChangeFOV");
+                
+                yield break;
+        }
+        
+        float incrementAmount = (endValue - cam.Lens.FieldOfView) / transitionTime;
+        
+        float timeStop = Time.time + transitionTime;
+        
+        while (Time.time < timeStop)
+        {
+            cam.Lens.FieldOfView += incrementAmount * Time.deltaTime;
+            
+            yield return null;
+        }
+    }
+    
+    
+    public void DoTilt(float zTilt, float transitionTime = -1)
+    {
+        if (transitionTime == -1)
+        {
+            SetTilt(zTilt);
+        }
+        else
+        {
+            //Start coroutine to change tilt
+            StartCoroutine(ChangeTilt(zTilt, transitionTime));
+        }
+    }
+    
+    public void SetTilt(float tilt)
+    {
+        switch (camType)
+        {
+            case eCamType.FirstPerson:
+                firstPersonCinCam.Lens.Dutch = tilt;
+                break;
+            case eCamType.ThirdOrbit:
+                thirdPersonOrbitCinCam.Lens.Dutch = tilt;
+                break;
+            case eCamType.ThirdFixed:
+                thirdPersonFixedCam.Lens.Dutch = tilt;
+                break;
+        }
     }
 
     public void ResetTilt()
     {
-        cam.transform.DOLocalRotate(Vector3.zero, tiltTransitionTime);
+        switch (camType)
+        {
+            case eCamType.FirstPerson:
+                firstPersonCinCam.Lens.Dutch = baseTilt;
+                break;
+            case eCamType.ThirdOrbit:
+                thirdPersonOrbitCinCam.Lens.Dutch = baseTilt;
+                break;
+            case eCamType.ThirdFixed:
+                thirdPersonFixedCam.Lens.Dutch = baseTilt;
+                break;
+        }
     }
-
-    private Tweener shakeTween;
+    
+    private IEnumerator ChangeTilt (float endValue, float transitionTime)
+    {
+        CinemachineCamera cam = null;
+        
+        switch (camType)
+        {
+            case eCamType.FirstPerson:
+                cam = firstPersonCinCam;
+                break;
+            case eCamType.ThirdOrbit:
+                cam = thirdPersonOrbitCinCam;
+                break;
+            case eCamType.ThirdFixed:
+                cam = thirdPersonFixedCam;
+                break;
+            default:
+                Debug.LogError("No cam type set in ChangeTilt");
+                
+                yield break;
+        }
+        
+        float incrementAmount = (endValue - cam.Lens.Dutch) / transitionTime;
+        
+        float timeStop = Time.time + transitionTime;
+        
+        while (Time.time < timeStop)
+        {
+            cam.Lens.Dutch += incrementAmount * Time.deltaTime;
+            
+            yield return null;
+        }
+    }
+    
     public void DoShake(float amplitude, float frequency)
     {
-        shakeTween = cam.transform.DOShakePosition(1f, .4f, 1, 90).SetLoops(-1);
+        //Change
     }
-
+    
     public void ResetShake()
     {
-        StartCoroutine(ResetShakeRoutine());
-    }
-    public IEnumerator ResetShakeRoutine()
-    {
-        /// needs to be fixed!
-
-        shakeTween.SetLoops(1);
-        cam.transform.DOKill(); // not optimal, sometimes kills the tilt or fov stuff too...
-
-        if(shakeTween != null)
-            yield return shakeTween.WaitForCompletion();
-
-        cam.transform.DOLocalMove(Vector3.zero, .2f);
-    }
-
-    #endregion
-
-
-    /// double click the field below to show all headBob code
-    /// as a beginner, just ignore this code for now
-    #region HeadBob
-
-    // Important Note: I learned how to create this code by following along with a YouTube tutorial
-    // Credits: https://www.youtube.com/watch?v=5MbR2qJK8Tc&ab_channel=Hero3D
-
-    private void CheckMotion()
-    {
-        // get the current speed of the players rigidbody (y axis excluded)
-        float speed = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).magnitude;
-
-        ResetPosition();
-
-        // check if the speed is high enough to activate the headBob effect
-        if (speed < hbToggleSpeed) return;
-
-        PlayMotion(FootStepMotion());
-    }
-
-    private void PlayMotion(Vector3 motion)
-    {
-        // take the calculated motion and apply it to the camera
-        cam.transform.localPosition += motion * Time.deltaTime;
-    }
-
-    private void ResetPosition()
-    {
-        if (cam.transform.localPosition == hbStartPos) return;
-
-        // smoothly reset the position of the camera back to normal
-        cam.transform.localPosition = Vector3.Lerp(cam.transform.localPosition, hbStartPos, 1 * Time.deltaTime);
-    }
-
-    private Vector3 FootStepMotion()
-    {
-        // use Sine and Cosine to create a smooth looking motion that swings from left to right and from up to down 
-        Vector3 pos = Vector3.zero;
-        pos.y += Mathf.Sin(Time.time * hbFrequency) * hbAmplitude;
-        pos.x += Mathf.Cos(Time.time * hbFrequency * 0.5f) * hbAmplitude * 2f;
-        return pos;
-    }
-
-
-    private Vector3 FocusTarget()
-    {
-        // make sure the camera focuses (Looks at) a point 15 tiles away from the player
-        // this stabilizes the camera
-        Vector3 pos = new Vector3(transform.position.x, cam.transform.position.y, transform.position.z);
-        pos += cam.transform.forward * 15f;
-        return pos;
+        //Change
     }
 
     #endregion
