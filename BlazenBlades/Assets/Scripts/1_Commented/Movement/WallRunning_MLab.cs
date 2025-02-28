@@ -376,7 +376,7 @@ public class WallRunning_MLab : MonoBehaviour
         wallRemembered = false;
 
         // increase camera fov
-        cam.DoFov(100f);
+        cam.DoFov(110f);
 
         RememberLastWall();
 

@@ -98681,6 +98681,11 @@ PrefabInstance:
       propertyPath: 'predictionPoints.Array.data[1]'
       value: 
       objectReference: {fileID: 150569742}
+    - target: {fileID: 6203304367693416331, guid: 20dd83c54b1592a4db36441848eafc5d,
+        type: 3}
+      propertyPath: field of view
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 6203304368605208344, guid: 20dd83c54b1592a4db36441848eafc5d,
         type: 3}
       propertyPath: text_speed
@@ -98701,6 +98706,11 @@ PrefabInstance:
       propertyPath: text_wallState
       value: 
       objectReference: {fileID: 1379880733}
+    - target: {fileID: 6203304368605208347, guid: 20dd83c54b1592a4db36441848eafc5d,
+        type: 3}
+      propertyPath: dashFov
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 6203304368605208351, guid: 20dd83c54b1592a4db36441848eafc5d,
         type: 3}
       propertyPath: markerSphere
