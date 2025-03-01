@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 
 // Dave MovementLab - Dashing
@@ -16,54 +17,80 @@ using UnityEngine;
 
 public class Dashing_MLab : MonoBehaviour
 {
+    [Header("Player References")]
+    
     public Transform orientation; // the players orientation (where he's looking)
-    public Transform playerCam;
-
-    [Header("References")]
+    
     private Rigidbody rb;
+    
     private PlayerMovement_MLab pm;
-    private PlayerCam_MLab cam;
+    
+    [Header("Camera References")]
+    
+    private PlayerCam_MLab playerCamScript;
+    
+    public Transform playerCamPos;
+    
+    [Header("Input References")]
+    
+    public KeyCode dashKey = KeyCode.E;
+    
 
-    [Header("Settings")]
+    [Header("Dash Forces")]
+    
     // how much force is added when dashing forward
     /// Note: the actual maxSpeed you can reach while dashing is defined in the PlayerMovement script
-    public float dashForce = 70f;
-    public float dashUpwardForce = 2f; // how much upward force is added when dashing
+    public float dashForce = 25f;
+    public float dashUpwardForce; // how much upward force is added when dashing
+    
+    [Space]
+    
     public float maxUpwardVel = -1; // limit the upwardVelocity if needed (if you keep it on -1, the upwardsVelocity is unlimited)
-    public float dashDuration = 0.4f;
+    
+    [Header("Dash Timings")]
+    
+    public float dashDuration = 0.25f;
+    
+    public float dashCd = 1.5f; // cooldown of your dash ability
 
-    // here are a few settings to customize your dash
+    [Header("Dash Behaviour")]
 
     public bool useCameraForward = true;  // when active, the player dashes in the forward direction of the camera (upwards if you look up)
+    
+    [Space]
+    
     public bool allowForwardDirection = true; // defines if the player is allowed to dash forwards
     public bool allowBackDirection = true; // defines if the player is allowed to dash backwards
     public bool allowSidewaysDirection = true; // defines if the player is allowed to dash sideways
+    
+    [Space]
+    
     public bool disableGravity = false; // when active, gravity is disabled while dashing
+    
+    [Space]
+    
     public bool resetYVel = true; // when active, y velocity is resetted before dashing
     public bool resetVel = true; // when active, full velocity reset before dashing
 
-    [Header("Effects")]
+    [Header("Camera Effects")]
     public float dashFov = 95f;
     public float dashFOVChangeSpeed = 0.2f;
-
-    [Header("Cooldown")]
-    public float dashCd = 1.5f; // cooldown of your dash ability
+    
+    //Dynamic, Non Serialized Below
+    
     private float dashCdTimer;
-
-    [Header("Input")]
-    public KeyCode dashKey = KeyCode.E;
 
 
     private void Start()
     {
         // get all references
 
-        if(playerCam == null)
-            playerCam = Camera.main.transform;
+        if(playerCamPos == null)
+            playerCamPos = Camera.main.transform;
 
         rb = GetComponent<Rigidbody>();
         pm = GetComponent<PlayerMovement_MLab>();
-        cam = GetComponent<PlayerCam_MLab>();
+        playerCamScript = GetComponent<PlayerCam_MLab>();
     }
 
     private void Update()
@@ -99,13 +126,13 @@ public class Dashing_MLab : MonoBehaviour
         pm.dashing = true;
 
         // increase the fov of the camera (graphical effect)
-        cam.DoFov(dashFov, dashFOVChangeSpeed);
+        playerCamScript.DoFov(dashFov, dashFOVChangeSpeed);
 
         Transform forwardT;
 
-        // decide wheter you want to use the playerCam or the playersOrientation as forward direction
+        // decide wheter you want to use the playerCamPos or the playersOrientation as forward direction
         if (useCameraForward)
-            forwardT = playerCam;
+            forwardT = playerCamPos;
         else
             forwardT = orientation;
 
@@ -147,7 +174,7 @@ public class Dashing_MLab : MonoBehaviour
         pm.maxYSpeed = -1;
 
         // reset the fov of your camera
-        cam.DoFov(-360, dashFOVChangeSpeed);
+        playerCamScript.DoFov(-360, dashFOVChangeSpeed);
 
         // if you disabled it before, activate the gravity of the rigidbody again
         if (disableGravity)

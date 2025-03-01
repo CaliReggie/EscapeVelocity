@@ -17,16 +17,18 @@ using UnityEngine.Serialization;
 
 public class Sliding_MLab : MonoBehaviour
 {
-    [Header("Input Reference")]
-    public KeyCode slideKey = KeyCode.LeftControl;
-    
     [Header("Player References")]
     
     public Transform orientation; // orientation object inside the player
     private Rigidbody rb;
     private PlayerMovement_MLab pm; // script reference to the PlayerMovement script
+    
+    [Header("Input Reference")]
+    
+    public KeyCode slideKey = KeyCode.LeftControl;
 
     [Header("Timings")]
+    
     public float slideCooldown = 0.5f;
     
     public float minSlideTime = 0.2f;

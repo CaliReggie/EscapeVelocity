@@ -26,88 +26,6 @@ using UnityEngine.Serialization;
 
 public class PlayerMovement_MLab : MonoBehaviour
 {
-    public float playerHeight = 2f;
-    
-    public float camEffectResetSpeed = 0.1f;
-    
-    /// this is an empty gameObject inside the player, it is rotated by the camera
-    /// -> keeps track of where the player is looking -> orientation.forward is the direction you're looking in
-    public Transform orientation; 
-
-    /// public Transform playerObj; // your player object with the collider on it
-
-    [Header("Movement")]
-    public float moveForce = 12f;
-    /// how much air control you have
-    /// for example: airMultiplier = 0.5f -> you can only move half as fast will being in the air
-    public float airMultiplier = 0.4f;
-
-    public float groundDrag = 5f;
-
-    public float jumpForce = 13f;
-    public float jumpCooldown = 0.25f;
-
-    public float crouchYScale = 0.5f; // how tall your player is while crouching (0.5f -> half as tall as normal)
-    private float startYScale;
-    private bool crouchStarted;
-
-    [Header("Special Movement")]
-    public int doubleJumps = 1;
-    private int doubleJumpsLeft;
-
-    [Header("Input")]
-    public KeyCode jumpKey = KeyCode.Space;
-    public KeyCode walkKey = KeyCode.LeftShift;
-    public KeyCode crouchKey = KeyCode.LeftControl;
-    private bool readyToJump = true;
-
-    [Header("Speed handling")]
-    // these variables define how fast your player can move while being in the specific movemt mode
-    public float walkMaxSpeed = 4f;
-    public float sprintMaxSpeed = 7f;
-    public float crouchMaxSpeed = 2f;
-    public float slopeSlideMaxSpeed = 30f;
-    public float wallJumpMaxSpeed = 12f;
-    public float climbMaxSpeed = 3f;
-    public float dashMaxSpeed = 15f;
-    public float swingMaxSpeed = 17f;
-
-    
-
-    private float maxSpeed; // this variable changes depending on which movement mode you are in
-    private float desiredMaxSpeed; // needed to smoothly change between speed limitations
-    private float desiredMaxSpeedLastFrame; // the previous desired max speed
-    public float currentLimitedSpeed = 20f; // changes based on how fast the player needs to go
-    
-    public float speedIncreaseMultiplier = 1.5f; // how fast the maxSpeed changes
-    public float slopeIncreaseMultiplier = 2.5f; // how fast the maxSpeed changes on a slope
-
-    /// how fast your player can maximally move on the y axis
-    /// if set to -1, y speed will not be limited
-    [HideInInspector] public float maxYSpeed;
-
-    [Header("Ground Detection")]
-    public LayerMask whatIsGround;
-    public Transform groundCheck;
-    public float groundCheckRadius = 0.2f;
-    public float maxSlopeAngle = 40f; // how steep the slopes you walk on can be
-
-    [Header("Jump Prediction")]
-    // this is needed for precise jumping and walljumping
-    public float maxJumpRange;
-    public float maxJumpHeight;
-
-    [Header("References")]
-    // all script references are assigned in void Start
-    private PlayerCam_MLab cam;
-    private WallRunning_MLab wr;
-
-    [Header("Momentum")]
-    private MomentumExtension momentumExtension;
-    private bool momentumExtensionEnabled;
-
-    [Header("Movement Modes")] 
-    [HideInInspector] public MovementMode mm; // this variable stores the current movement mode of the player
     public enum MovementMode // here are all movement modes defined
     {
         unlimited, // players speed is not being limited at all
@@ -124,9 +42,119 @@ public class PlayerMovement_MLab : MonoBehaviour
         swinging,
         air
     };
+    
+    [Header("Player References")]
+    
+    // this is an empty gameObject inside the player, it is rotated by the camera
+    // -> keeps track of where the player is looking -> orientation.forward is the direction you're looking in
+    public Transform orientation; 
+    
+    [Header("Input References")]
+    public KeyCode jumpKey = KeyCode.Space;
+    public KeyCode walkKey = KeyCode.LeftShift;
+    public KeyCode crouchKey = KeyCode.LeftControl;
+    
+    [Header("Player Settings")]
+    
+    public float playerHeight = 2f;
+    
+    [Header("Movement Forces")]
+    
+    public float moveForce = 12f;
+    
+    // how much air control you have
+    // for example: airMultiplier = 0.5f -> you can only move half as fast will being in the air
+    public float airMultiplier = 0.4f;
+    
+    [Space]
 
+    public float groundDrag = 5f;
+    
+    [Space]
+
+    public float jumpForce = 13f;
+    public float jumpCooldown = 0.25f;
+    
+    [Header("Crouch Behaviour")]
+
+    public float crouchYScale = 0.5f; // how tall your player is while crouching (0.5f -> half as tall as normal)
+    
+    [Header("Air Jumping")]
+    
+    public int airJumpsAllowed;
+
+    [Header("Speed handling")]
+    
+    // these variables define how fast your player can move while being in the specific movemt mode
+    public float walkMaxSpeed = 4f;
+    public float sprintMaxSpeed = 7f;
+    public float crouchMaxSpeed = 2f;
+    public float slopeSlideMaxSpeed = 30f;
+    public float wallJumpMaxSpeed = 12f;
+    public float climbMaxSpeed = 3f;
+    public float dashMaxSpeed = 15f;
+    public float swingMaxSpeed = 17f;
+    
+    [Space]
+    
+    public float speedIncreaseMultiplier = 1.5f; // how fast the maxSpeed changes
+    public float slopeIncreaseMultiplier = 2.5f; // how fast the maxSpeed changes on a slope
+
+    [Header("Dynamic Speed Handling")]
+    
+    public float currentLimitedSpeed = 20f; // changes based on how fast the player needs to go
+
+    [Header("Detection")]
+    
+    public LayerMask whatIsGround;
+    
+    [Space]
+    
+    public float groundCheckRadius = 0.2f;
+    
+    [Space]
+    
+    public float maxSlopeAngle = 40f; // how steep the slopes you walk on can be
+    
+    [Header("Jump Prediction")]
+    
+    // this is needed for precise jumping and walljumping
+    public float maxJumpRange;
+    public float maxJumpHeight;
+
+    [Header("Camera Effects")]
+    
+    public float camEffectResetSpeed = 0.1f;
+    
+    [Header("Debug")]
+    
+    public TextMeshProUGUI textSpeed;
+    public TextMeshProUGUI textYSpeed;
+    public TextMeshProUGUI textMoveState;
+    public TextMeshProUGUI textSpeedChangeFactor;
+    
+    //Dynamic, Non Serialized Below
+    
+    //References
+    private Rigidbody rb; // the players rigidbody
+    
+    private PlayerCam_MLab playerCamScript;
+    private WallRunning_MLab wr;
+    
+    private MomentumExtension momentumExtension;
+    private bool momentumExtensionEnabled;
+    
+    private float startYScale;
+    
+    //Detection
+    RaycastHit slopeHit; // variable needed for slopeCheck
+    
+    //State Handling
+    
     // these bools are activated from different scripts
     // if for example the wallrunning bool is set to true, the movement mode will change to MovementMode.wallrunning#
+    
+    [HideInInspector] public MovementMode mm; // this variable stores the current movement mode of the player
 
     [HideInInspector] public bool freeze;
     [HideInInspector] public bool unlimitedSpeed;
@@ -140,30 +168,37 @@ public class PlayerMovement_MLab : MonoBehaviour
     [HideInInspector] public bool swinging;
     [HideInInspector] public bool wallrunning;
     [HideInInspector] public bool walljumping;
-
-    // these bools are changed using specific functions
-    [HideInInspector] private bool speedLimited;
-
-    // other variables
+    
+    // this bool is changed using specific functions
+    private bool speedLimited;
+    
+    [HideInInspector] public bool grounded;
+    
+    private int doubleJumpsLeft;
+    
+    private bool readyToJump = true;
+    
+    private bool crouchStarted;
+    
+    //Speeds
+    private Vector3 moveDirection;
+    
+    [HideInInspector] public float maxYSpeed;
+    
+    private float desiredMaxSpeed; // needed to smoothly change between speed limitations
+    private float maxSpeed; // this variable changes depending on which movement mode you are in
+    
+    private float desiredMaxSpeedLastFrame; // the previous desired max speed
+    
+    //Input
     [HideInInspector] public float horizontalInput;
     [HideInInspector] public float verticalInput;
-
-    [HideInInspector] public bool grounded;
-
-    private Vector3 moveDirection;
-
-    private Rigidbody rb; // the players rigidbody
-
-    RaycastHit slopeHit; // variable needed for slopeCheck
-
-
-    // text variables needed to display the speed and movement state ingame
-
-    [Header("Debug")]
-    public TextMeshProUGUI text_speed;
-    public TextMeshProUGUI text_ySpeed;
-    public TextMeshProUGUI text_moveState;
-    public TextMeshProUGUI text_speedChangeFactor;
+    
+    //IDK if needed, wasn't used in script - Sid
+    // public Transform groundCheck;
+    
+    /// how fast your player can maximally move on the y axis
+    /// if set to -1, y speed will not be limited
 
     private void Start()
     {
@@ -172,7 +207,7 @@ public class PlayerMovement_MLab : MonoBehaviour
             whatIsGround = LayerMask.GetMask("Default");
 
         // assign references
-        cam = GetComponent<PlayerCam_MLab>();
+        playerCamScript = GetComponent<PlayerCam_MLab>();
         wr = GetComponent<WallRunning_MLab>();
         rb = GetComponent<Rigidbody>();
 
@@ -209,13 +244,13 @@ public class PlayerMovement_MLab : MonoBehaviour
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
 
         // if you hit the ground again after double jumping, reset your double jumps
-        if (grounded && doubleJumpsLeft != doubleJumps)
+        if (grounded && doubleJumpsLeft != airJumpsAllowed)
             ResetDoubleJumps();
 
         if (Input.GetKeyDown(KeyCode.J))
         {
             RaycastHit hit;
-            if (Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, 50f, whatIsGround))
+            if (Physics.Raycast(playerCamScript.transform.position, playerCamScript.transform.forward, out hit, 50f, whatIsGround))
             {
                 JumpToPosition(hit.point, 10f);
                 // print("trying to jump to " + hit.point);
@@ -398,7 +433,7 @@ public class PlayerMovement_MLab : MonoBehaviour
 
     public void ResetDoubleJumps()
     {
-        doubleJumpsLeft = doubleJumps;
+        doubleJumpsLeft = airJumpsAllowed;
     }
 
     // Uses Vector Maths to make the player jump exactly to a desired position
@@ -424,8 +459,8 @@ public class PlayerMovement_MLab : MonoBehaviour
     private void SetVelocity()
     {
         rb.linearVelocity = velocityToSet;
-        cam.DoFov(-360, camEffectResetSpeed);
-        cam.DoTilt(-360, camEffectResetSpeed);
+        playerCamScript.DoFov(-360, camEffectResetSpeed);
+        playerCamScript.DoTilt(-360, camEffectResetSpeed);
     }
     private void EnableMovementNextTouchDelayed()
     {
@@ -437,8 +472,8 @@ public class PlayerMovement_MLab : MonoBehaviour
         if (tierTwoRestricted)
         {
             tierTwoRestricted = false;
-            cam.DoFov(-360, camEffectResetSpeed);
-            cam.DoTilt(-360, camEffectResetSpeed);
+            playerCamScript.DoFov(-360, camEffectResetSpeed);
+            playerCamScript.DoTilt(-360, camEffectResetSpeed);
         }
 
         DisableLimitedState();
@@ -602,11 +637,6 @@ public class PlayerMovement_MLab : MonoBehaviour
             maxSpeed = desiredMaxSpeed;
         }
         
-        Debug.Log("State: " + mm);
-        Debug.Log("desiredMaxSpeed: " + desiredMaxSpeed);
-        
-        
-
         // movement mode switched
         if (movementModeLastFrame != mm)
         {
@@ -783,28 +813,28 @@ public class PlayerMovement_MLab : MonoBehaviour
 
     private void DebugText()
     {
-        if (text_speed != null)
+        if (textSpeed != null)
         {
             Vector3 rbFlatVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-            text_speed.SetText("Speed: " + Round(rbFlatVelocity.magnitude, 1) + "/" + Round(maxSpeed,0));
+            textSpeed.SetText("Speed: " + Round(rbFlatVelocity.magnitude, 1) + "/" + Round(maxSpeed,0));
         }
 
-        if (text_ySpeed != null)
-            text_ySpeed.SetText("Y Speed: " + Round(rb.linearVelocity.y, 1));
+        if (textYSpeed != null)
+            textYSpeed.SetText("Y Speed: " + Round(rb.linearVelocity.y, 1));
 
-        if (text_moveState != null)
-            text_moveState.SetText(mm.ToString());
+        if (textMoveState != null)
+            textMoveState.SetText(mm.ToString());
 
         if (!momentumExtensionEnabled)
             return;
 
-        if (text_speedChangeFactor != null)
+        if (textSpeedChangeFactor != null)
         {
             if (isIncreasingMaxSpeed)
-                text_speedChangeFactor.SetText("Increase: " + increaseSpeedChangeFactor.ToString());
+                textSpeedChangeFactor.SetText("Increase: " + increaseSpeedChangeFactor.ToString());
             else
             {
-                text_speedChangeFactor.SetText("Decrease: " + (decreaseSpeedChangeFactor*momentumExtension.GetSurfaceSpeedDecreaseFactor(grounded)).ToString());
+                textSpeedChangeFactor.SetText("Decrease: " + (decreaseSpeedChangeFactor*momentumExtension.GetSurfaceSpeedDecreaseFactor(grounded)).ToString());
             }
         }
     }

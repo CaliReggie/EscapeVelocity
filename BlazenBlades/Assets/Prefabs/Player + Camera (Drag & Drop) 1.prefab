@@ -1230,19 +1230,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b32b4f2c7ddd24b45b1d96c59ab429a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerHeight: 2
-  camEffectResetSpeed: 0.1
   orientation: {fileID: 6203304367961361731}
+  jumpKey: 32
+  walkKey: 304
+  crouchKey: 99
+  playerHeight: 2
   moveForce: 12
   airMultiplier: 0.4
   groundDrag: 5
   jumpForce: 13
   jumpCooldown: 0.25
   crouchYScale: 0.5
-  doubleJumps: 0
-  jumpKey: 32
-  walkKey: 304
-  crouchKey: 99
+  airJumpsAllowed: 0
   walkMaxSpeed: 4
   sprintMaxSpeed: 8
   crouchMaxSpeed: 2
@@ -1251,18 +1250,21 @@ MonoBehaviour:
   climbMaxSpeed: 4
   dashMaxSpeed: 30
   swingMaxSpeed: 30
-  currentLimitedSpeed: -1
   speedIncreaseMultiplier: 1
   slopeIncreaseMultiplier: 5
-  maxYSpeed: 0
+  currentLimitedSpeed: -1
   whatIsGround:
     serializedVersion: 2
     m_Bits: 1024
-  groundCheck: {fileID: 6203304366790174987}
   groundCheckRadius: 0.2
   maxSlopeAngle: 45
   maxJumpRange: 5.5
   maxJumpHeight: 2
+  camEffectResetSpeed: 0.1
+  textSpeed: {fileID: 0}
+  textYSpeed: {fileID: 0}
+  textMoveState: {fileID: 0}
+  textSpeedChangeFactor: {fileID: 0}
   mm: 0
   freeze: 0
   unlimitedSpeed: 0
@@ -1275,13 +1277,10 @@ MonoBehaviour:
   swinging: 0
   wallrunning: 0
   walljumping: 0
+  grounded: 0
+  maxYSpeed: 0
   horizontalInput: 0
   verticalInput: 0
-  grounded: 0
-  text_speed: {fileID: 0}
-  text_ySpeed: {fileID: 0}
-  text_moveState: {fileID: 0}
-  text_speedChangeFactor: {fileID: 0}
 --- !u!114 &5965718284427126071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1384,6 +1383,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbeb9ff899020cf4bba0c367151844ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  realCam: {fileID: 6203304367693416331}
+  firstPersonCinCam: {fileID: 211337961086038659}
+  thirdPersonOrbitCinCam: {fileID: 8550983039436619985}
+  thirdPersonFixedCam: {fileID: 1805998685722152318}
+  orientation: {fileID: 6203304367961361731}
+  player: {fileID: 6203304368605208358}
+  playerObj: {fileID: 6203304367071852722}
+  thirdPersonFixedCamOrientation: {fileID: 1981107739239566877}
+  grappleRig: {fileID: 9214240837187434000}
+  lookAction: {fileID: -5630151704836100654, guid: afe51c0734c16cc478365fbf55b0fafd,
+    type: 3}
+  moveAction: {fileID: -1680190386980627800, guid: afe51c0734c16cc478365fbf55b0fafd,
+    type: 3}
   camType: 2
   firstPersonRenderMask:
     serializedVersion: 2
@@ -1394,23 +1406,8 @@ MonoBehaviour:
   firstPersonLookSpeedMult: 0.01
   playerRotSpeed: 7
   thirdPersonFixedLookSpeedMult: 0.01
-  lookAction: {fileID: -5630151704836100654, guid: afe51c0734c16cc478365fbf55b0fafd,
-    type: 3}
-  moveAction: {fileID: -1680190386980627800, guid: afe51c0734c16cc478365fbf55b0fafd,
-    type: 3}
-  realCam: {fileID: 6203304367693416331}
-  firstPersonCinCam: {fileID: 211337961086038659}
-  thirdPersonOrbitCinCam: {fileID: 8550983039436619985}
-  thirdPersonFixedCam: {fileID: 1805998685722152318}
-  orientation: {fileID: 6203304367961361731}
-  player: {fileID: 6203304368605208358}
-  playerObj: {fileID: 6203304367071852722}
-  thirdPersonFixedCamOrientation: {fileID: 1981107739239566877}
-  grappleRig: {fileID: 9214240837187434000}
   baseFov: 100
-  fovTransitionTime: 0.25
   baseTilt: 0
-  tiltTransitionTime: 0.25
 --- !u!114 &6203304368605208346
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1423,56 +1420,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f351021955f8834d8de720f3da4cb50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wallRunFOV: 110
-  wallRunFOVChangeSpeed: 0.2
-  wallRunTilt: 5
-  wallRunTiltChangeSpeed: 0.2
-  EnablePrecisionMode: 1
+  enablePrecisionMode: 1
   orientation: {fileID: 6203304367961361731}
+  wallJumpKey: 32
+  upwardsRunKey: 304
+  downwardsRunKey: 306
   whatIsWall:
     serializedVersion: 2
     m_Bits: 1536
   whatIsGround:
     serializedVersion: 2
     m_Bits: 1024
+  minWallNormalAngleChange: 15
   wallRunForce: 200
   wallJumpSideForce: 9
-  wallJumpUpForce: 10
-  pushToWallForce: 100
-  maxWallRunTime: 1
-  wallrunClimbSpeed: 4
-  wallJumpDuration: 0.5
   useGravity: 1
+  customGravity: 0
   gravityCounterForce: 28
-  climbForce: 200
+  wallJumpUpForce: 10
+  wallrunClimbSpeed: 4
+  maxWallRunTime: 1
+  wallJumpDuration: 0.5
+  doJumpOnEndOfTimer: 0
+  resetJumpsOnNewWall: 1
+  resetJumpsOnEveryWall: 0
+  allowedWallJumps: 1
   climbJumpUpForce: 10
   climbJumpBackForce: 5
   maxClimbYSpeed: 10
-  maxClimbTime: 0.75
-  maxWallLookAngle: 30
-  minFrontWallAngle: 80
   backWallJumpUpForce: 5
   backWallJumpForwardForce: 12
-  doJumpOnEndOfTimer: 0
-  resetDoubleJumpsOnNewWall: 1
-  resetDoubleJumpsOnEveryWall: 0
-  allowedWallJumps: 1
+  maxClimbTime: 0.75
+  minFrontWallAngle: 80
+  maxWallLookAngle: 30
   allowedClimbJumps: 1
-  wallJumpKey: 32
-  upwardsRunKey: 304
-  downwardsRunKey: 306
-  minWallNormalAngleChange: 15
-  customGravity: 0
   vaultDetectionLength: 1.2
-  topReached: 0
   maxVaultClimbYSpeed: 10
-  vaultJumpForwardForce: 12
-  vaultJumpUpForce: 7
-  vaultCooldown: 1
-  wallFront: 0
-  wallBack: 0
+  topReached: 0
+  wallRunFOV: 110
+  wallRunFOVChangeSpeed: 0.2
+  wallRunTilt: 5
+  wallRunTiltChangeSpeed: 0.2
   ledgegrabbing: 0
   text_wallState: {fileID: 0}
+  wallFront: 0
+  wallBack: 0
 --- !u!114 &6203304368605208349
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1488,20 +1480,19 @@ MonoBehaviour:
   orientation: {fileID: 6203304367961361731}
   cam: {fileID: 6203304367693416332}
   jumpKey: 32
-  moveToLedgeSpeed: 12
-  ledgeJumpForwardForce: 14
-  ledgeJumpUpForce: 5
-  maxLedgeJumpUpSpeed: 7
-  maxLedgeGrabDistance: 2
-  minTimeOnLedge: 0.5
   ledgeDetectionLength: 3
   ledgeSphereCastRadius: 0.5
+  maxLedgeGrabDistance: 2
+  minTimeOnLedge: 0.5
   whatIsLedge:
     serializedVersion: 2
     m_Bits: 2048
-  currLedge: {fileID: 0}
-  exitingLedge: 0
+  moveToLedgeSpeed: 12
+  ledgeJumpForwardForce: 14
+  ledgeJumpUpForce: 5
   exitLedgeTime: 0.2
+  exitingLedge: 0
+  currLedge: {fileID: 0}
 --- !u!114 &6203304368605208347
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1515,11 +1506,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   orientation: {fileID: 6203304367961361731}
-  playerCam: {fileID: 6203304367693416332}
+  playerCamPos: {fileID: 6203304367693416332}
+  dashKey: 101
   dashForce: 22
   dashUpwardForce: 0
   maxUpwardVel: 15
   dashDuration: 0.25
+  dashCd: 1.5
   useCameraForward: 1
   allowForwardDirection: 1
   allowBackDirection: 1
@@ -1529,8 +1522,6 @@ MonoBehaviour:
   resetVel: 1
   dashFov: 125
   dashFOVChangeSpeed: 0.2
-  dashCd: 1.5
-  dashKey: 101
 --- !u!114 &6203304368605208337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1544,13 +1535,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   orientation: {fileID: 6203304367961361731}
+  slideKey: 306
+  slideCooldown: 0.25
   minSlideTime: 0.1
   maxSlideTime: 0.75
-  slideForce: 200
-  slideCooldown: 0.25
+  useDynamicSlideForce: 1
+  nonDynamicSlideForce: 200
   slideYScale: 0.5
-  slideKey: 306
-  allowSlideHoldDown: 1
+  reverseCoyoteTime: 1
 --- !u!114 &6203304367677133244
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1563,53 +1555,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e98b733bbffa6646a4a707fb1c0e42a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EnableSwingingWithForces: 1
-  grappleMode: 1
   orientation: {fileID: 6203304367961361731}
-  whatIsGrappleable:
-    serializedVersion: 2
-    m_Bits: 1536
+  cam: {fileID: 6203304367693416332}
   gunTips:
   - {fileID: 6203304368146213086}
   - {fileID: 8676861862186546235}
-  cam: {fileID: 6203304367693416332}
-  maxSwingDistance: 20
-  swingSpherecastRadius: 3
-  spring: 50
-  damper: 50
-  massScale: 1
-  maxGrappleDistance: 25
-  grappleDelayTime: 0.15
-  grappleForce: 35
-  grappleUpwardForce: 7.5
-  grappleDistanceHeightMultiplier: 0.1
-  grapplingCd: 0.25
-  overshootYAxis: 2
-  freezeOnGrappleNotHit: 0
-  useChargeOnHookNotHit: 1
-  swingKey: 323
-  swingKey2: 324
+  pointAimers:
+  - {fileID: 1108145900663677864}
+  - {fileID: 273777099212690784}
+  predictionPoints:
+  - {fileID: 0}
+  - {fileID: 0}
   leftHookAction: {fileID: 1120369429361536294, guid: afe51c0734c16cc478365fbf55b0fafd,
     type: 3}
   rightHookAction: {fileID: 6884425896609761536, guid: afe51c0734c16cc478365fbf55b0fafd,
     type: 3}
   altHookUltilityAction: {fileID: 1979310071656275929, guid: afe51c0734c16cc478365fbf55b0fafd,
     type: 3}
-  grapplesExecuted: 0000
-  grapplesActive: 0000
-  swingsActive: 0000
   playerHeight: 2
-  amountOfSwingPoints: 2
-  predictionPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  pointAimers:
-  - {fileID: 1108145900663677864}
-  - {fileID: 273777099212690784}
-  debuggingEnabled: 1
+  amountOfHookPoints: 2
+  useChargeOnHookNotHit: 1
+  whatIsGrappleable:
+    serializedVersion: 2
+    m_Bits: 1536
+  aimLineSpherecastRadius: 3
+  maxGrappleDistance: 25
+  grappleDelayTime: 0.15
+  grapplingCd: 0.25
+  grappleMode: 1
+  overshootYAxis: 2
+  grappleForce: 35
+  grappleUpwardForce: 7.5
+  grappleDistanceHeightMultiplier: 0.1
+  freezeOnGrappleNotHit: 0
+  maxSwingDistance: 20
+  spring: 50
+  damper: 50
+  massScale: 1
+  enableSwingingWithForces: 1
   lateralThrustForce: 2500
   retractThrustForce: 3500
   extendCableSpeed: 10
+  grapplesExecuted: 0000
+  grapplesActive: 0000
+  swingsActive: 0000
 --- !u!114 &6203304368605208351
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1622,19 +1611,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a6fd9718ded6f445be682a00c5a1bea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowMarkerSphere: 0
   pm: {fileID: 6203304368605208344}
   orientation: {fileID: 6203304367961361731}
   whatIsGround:
     serializedVersion: 2
     m_Bits: 1024
+  showMarkerSphere: 0
   precisionTargetFound: 0
   precisionTargetIsWall: 0
   debuggingEnabled: 0
-  renderer_markerSphere: {fileID: 0}
+  renderMarkerSphere: {fileID: 0}
   markerSphere: {fileID: 0}
   someSecondSphere: {fileID: 0}
-  text_predictionState: {fileID: 0}
+  textPredictionState: {fileID: 0}
 --- !u!136 &6203304368605208348
 CapsuleCollider:
   m_ObjectHideFlags: 0

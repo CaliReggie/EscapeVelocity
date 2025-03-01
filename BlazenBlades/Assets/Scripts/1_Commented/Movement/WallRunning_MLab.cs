@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.Serialization;
 
 
 // Dave MovementLab - WallRunning
@@ -28,71 +29,146 @@ using TMPro;
 
 public class WallRunning_MLab : MonoBehaviour
 {
-    public float wallRunFOV = 110f; // the fov of the camera while wallrunning
-    public float wallRunFOVChangeSpeed = 0.2f; // how fast the fov changes while wallrunning
-    public float wallRunTilt = 5f; // the tilt of the camera while wallrunning
-    public float wallRunTiltChangeSpeed = 0.2f; // how fast the tilt changes while wallrunning
+    private enum State
+    {
+        ledgegrabbing,
+        wallrunning,
+        climbing,
+        sliding,
+        exiting,
+        none
+    }
     
     [Header("Toggle Abilites")]
-    public bool EnablePrecisionMode = true;
-
-    [Header("References")]
+    
+    public bool enablePrecisionMode = true;
+    
+    [Header("Player References")]
+    
+    private PlayerMovement_MLab pm;
+    
+    private LedgeGrabbing_MLab lg;
+    
+    private Detector_MLab dt;
+    
+    private PlayerCam_MLab playerCamScript;
+    
     public Transform orientation;
-
-    [Header("Wall Running")]
-    public LayerMask whatIsWall;
-    public LayerMask whatIsGround;
-    public float wallRunForce = 200f; // forward wallRunForce, Note: maxSpeed while wallrunning is defined in PlayerMovement_MLab
-    public float wallJumpSideForce = 15f; // sidewards force of your wall jump (pushes you away from the wall when jumping)
-    public float wallJumpUpForce = 12f; // upward force of your wall jump
-    public float pushToWallForce = 100f; // the force that keeps you on the wall
-    public float maxWallRunTime = 1f;
-    public float wallrunClimbSpeed; // how fast you can move on the y axis when wallrunning diagonally
-
-    public float wallJumpDuration = 0.5f; // the duration of the wallJump, afterwards speed gained decreases quickly back to normal
-
-    public bool useGravity;
-    public float gravityCounterForce = 0f; // the higher the value, the lower the effect of gravity while wallrunning
-
-    private float wallRunTimer;
-
-    [Header("Climbing")]
-    public float climbForce = 200f; // upward force while climbing
-    public float climbJumpUpForce = 15f; // upward force of your climb jump
-    public float climbJumpBackForce = 15f; // backwards force of your climb jump (pushes you away from the wall)
-    public float maxClimbYSpeed = 5f; // max upward speed while climbing
-    public float maxClimbTime = 0.75f;
-    public float maxWallLookAngle = 30f; // if you look at the wall with an angle of let's say 45 degrees, you can't climb
-
-    private float wallLookAngle;
-    private float climbTimer;
-    // Didn't seem to be used, so I commented it out - Sid
-    // private bool readyToClimb; // is true if player hits a new wall or has sucessfully exited the old one
-
-    public float minFrontWallAngle = 80; // how steep the wall needs to be
-    private float frontWallAngle;
-
-    [Header("BackWallMovement")]
-    public float backWallJumpUpForce = 5f;
-    public float backWallJumpForwardForce = 12f;
-
-    [Header("Limitations")]
-    public bool doJumpOnEndOfTimer = false; // when active, wall jump happens automatically when timer runs out
-    public bool resetDoubleJumpsOnNewWall = true; // when active, double jumps get resetted when player hits a new wall
-    public bool resetDoubleJumpsOnEveryWall = false; // when active, double jumps get resetted when player hits a wall (always!)
-    public int allowedWallJumps = 1; // wall jumps allowed (resets on new wall)
-    public int allowedClimbJumps = 1; // climb jumps allowed (resets on new wall)
-
-    [Header("Input")]
+    
+    [Header("Input References")]
+    
     public KeyCode wallJumpKey = KeyCode.Space;
     public KeyCode upwardsRunKey = KeyCode.LeftShift; // the key to press in order to wall run diagonally upwards
     public KeyCode downwardsRunKey = KeyCode.LeftControl;
-    private bool upwardsRunning;
-    private bool downwardsRunning;
-    private float horizontalInput;
-    private float verticalInput;
-
+    
     [Header("Detection")]
+    public LayerMask whatIsWall;
+    public LayerMask whatIsGround;
+    
+    [Space]
+    
+    public float minWallNormalAngleChange = 15f; // the minimum angle change that is needed to count a surface as a new wall
+    
+    [Header("Wall Run Forces")]
+    
+    public float wallRunForce = 200f; // forward wallRunForce, Note: maxSpeed while wallrunning is defined in PlayerMovement_MLab
+    public float wallJumpSideForce = 15f; // sidewards force of your wall jump (pushes you away from the wall when jumping)
+    
+    [Space]
+    
+    public bool useGravity;
+    
+    public float customGravity; // apply custom gravity while wallrunning
+    
+    public float gravityCounterForce = 25f; // the higher the value, the lower the effect of gravity while wallrunning
+    
+    public float wallJumpUpForce = 10f; // upward force of your wall jump
+    
+    [Space]
+    
+    public float wallrunClimbSpeed = 4f; // how fast you can move on the y axis when wallrunning diagonally
+    
+    [Header("Wall Run Behaviour")]
+    
+    public float maxWallRunTime = 1f;
+    
+    public float wallJumpDuration = 0.5f; // the duration of the wallJump, afterwards speed gained decreases quickly back to 
+    
+    [Space]
+    
+    public bool doJumpOnEndOfTimer; // when active, wall jump happens automatically when timer runs out
+    
+    [Space]
+    public bool resetJumpsOnNewWall = true; // when active, double jumps get resetted when player hits a new wall
+    public bool resetJumpsOnEveryWall = false; // when active, double jumps get resetted when player hits a wall (always!)
+    
+    [Space]
+    
+    public int allowedWallJumps = 1; // wall jumps allowed (resets on new wall)
+
+    [Header("Climbing Forces")]
+    
+    public float climbJumpUpForce = 10f; // upward force of your climb jump
+    public float climbJumpBackForce = 5f; // backwards force of your climb jump (pushes you away from the wall)
+    
+    [Space]
+    
+    public float maxClimbYSpeed = 10f; // max upward speed while climbing
+    
+    [Space]
+    
+    public float backWallJumpUpForce = 5f;
+    public float backWallJumpForwardForce = 12f;
+    
+    
+    [Header("Climbing Behaviour")]
+    
+    public float maxClimbTime = 0.75f;
+    
+    [Space]
+    
+    public float minFrontWallAngle = 80; // how steep the wall needs to be
+    
+    [Space]
+    
+    public float maxWallLookAngle = 30f; // if you look at the wall with an angle of let's say 45 degrees, you can't climb
+    
+    [Space]
+    
+    public int allowedClimbJumps = 1; // climb jumps allowed (resets on new wall)
+    
+    [Header("Vaulting")]
+    
+    public float vaultDetectionLength = 1.2f;
+    
+    [Space]
+    
+    public float maxVaultClimbYSpeed = 10f;
+    
+    [Space]
+    
+    public bool topReached;
+    
+    [Header("Camera Effects")]
+    
+    public float wallRunFOV = 110f; // the fov of the camera while wallrunning
+    public float wallRunFOVChangeSpeed = 0.2f; // how fast the fov changes while wallrunning
+    
+    [Space]
+    
+    public float wallRunTilt = 5f; // the tilt of the camera while wallrunning
+    public float wallRunTiltChangeSpeed = 0.2f; // how fast the tilt changes while wallrunning
+    
+    [Header("State")]
+    
+    public bool ledgegrabbing;
+    
+    [Header("Debugging")]
+
+    public TextMeshProUGUI text_wallState; // displaying text ingame
+    
+    //Dynamic, Non-Serialized Below
+    
     // this entire section is for defining how long the raycasts forward, sideways and backwards are
     /// these values should work just fine for your game, but if you still want to change them
     /// just set them to public and change them inside of Unity
@@ -106,34 +182,64 @@ public class WallRunning_MLab : MonoBehaviour
     private float exitWallTime = 0.2f; // just a variable needed to exit walls correctly
     private float exitWallTimer;
 
-    public float minWallNormalAngleChange = 15f; // the minimum angle change that is needed to count a surface as a new wall
+    private bool vaultClimbStarted;
+    private bool readyToVault;
+    private bool vaultPerformed;
+    private bool midCheck;
+    private bool feetCheck;
+    
+    //IDK if needed, these weren't used in the script - Sid
+    // public float climbForce = 200f; // upward force while climbing
 
-    [Header("Gravity")]
-    public float customGravity = 0f; // apply custom gravity while wallrunning
+    // public float pushToWallForce = 100f; // the force that keeps you on the wall
 
-    [Header("References")]
-    private PlayerMovement_MLab pm;
-    private PlayerCam_MLab cam;
-    private LedgeGrabbing_MLab lg;
-    private Detector_MLab dt;
+    // private bool readyToClimb; // is true if player hits a new wall or has sucessfully exited the old one
 
-    [Header("Vaulting")]
-    public float vaultDetectionLength;
-    public bool topReached;
-    public float maxVaultClimbYSpeed;
-    public float vaultJumpForwardForce;
-    public float vaultJumpUpForce;
-    public float vaultCooldown;
+    // public float vaultJumpForwardForce;
+    // public float vaultJumpUpForce;
+    // public float vaultCooldown;
+    
+    //Player References
+    private Rigidbody rb;
+    
+    //Timing
+    private float wallRunTimer;
+    
+    private float climbTimer;
+    
+    //Detection
+    
+    [HideInInspector] public bool wallFront;
+    [HideInInspector] public bool wallBack;
+    
+    
+    private float wallLookAngle;
+    private float frontWallAngle;
+    
+    private Transform lastWall; // the transform of the wall the player previously touched
+    private Vector3 lastWallNormal; // the normal of the wall the prlayer previously touched
+    
+    //State
+    private State state; // this variable stores the current State
+    
+    //bools that signal state of the player input
+    private bool upwardsRunning;
+    private bool downwardsRunning;
+    private float horizontalInput;
+    private float verticalInput;
+    
+    // booleans that get activated when the raycasts hit something
+    private bool wallLeft;
+    private bool wallLeft2;
+    private bool wallRight;
+    private bool wallRight2;
+    
+    private bool exitingWall; // needed to exit walls correctly
 
-    bool vaultClimbStarted;
-    bool readyToVault;
-    bool vaultPerformed;
-    bool midCheck;
-    bool feetCheck;
+    private bool wallRemembered;
 
     // RaycastHit variables for all of the raycasts that get performed
     /// These variables store the information of where objects were hit
-
     private RaycastHit leftWallHit;
     private RaycastHit leftWallHit2;
     private RaycastHit rightWallHit;
@@ -142,43 +248,9 @@ public class WallRunning_MLab : MonoBehaviour
     private RaycastHit frontWallHit;
     private RaycastHit backWallHit;
 
-    // booleans that get activated when the raycasts hit something
-
-    private bool wallLeft;
-    private bool wallLeft2;
-    private bool wallRight;
-    private bool wallRight2;
-
-    [HideInInspector] public bool wallFront;
-    [HideInInspector] public bool wallBack;
-
-    private bool exitingWall; // needed to exit walls correctly
-
-    private bool wallRemembered;
-    private Transform lastWall; // the transform of the wall the player previously touched
-    private Vector3 lastWallNormal; // the normal of the wall the prlayer previously touched
-
+    // jump counters
     private int wallJumpsDone;
     private int climbJumpsDone;
-
-    private Rigidbody rb;
-
-    // different states for wallmovement
-
-    private State state; // this variable stores the current State
-    private enum State
-    {
-        ledgegrabbing,
-        wallrunning,
-        climbing,
-        sliding,
-        exiting,
-        none
-    }
-
-    public bool ledgegrabbing;
-
-    public TextMeshProUGUI text_wallState; // displaying text ingame
 
     private void Start()
     {
@@ -192,7 +264,7 @@ public class WallRunning_MLab : MonoBehaviour
         // get the references
         rb = GetComponent<Rigidbody>();
         pm = GetComponent<PlayerMovement_MLab>();
-        cam = GetComponent<PlayerCam_MLab>();
+        playerCamScript = GetComponent<PlayerCam_MLab>();
         lg = GetComponent<LedgeGrabbing_MLab>();
         dt = GetComponent<Detector_MLab>();
     }
@@ -277,14 +349,14 @@ public class WallRunning_MLab : MonoBehaviour
                 // ResetReadyToClimb();
                 ResetWallJumpsDone();
 
-                if (resetDoubleJumpsOnNewWall)
+                if (resetJumpsOnNewWall)
                     pm.ResetDoubleJumps();
 
                 wallRunTimer = maxWallRunTime;
                 climbTimer = maxClimbTime;
             }
 
-            if(resetDoubleJumpsOnEveryWall)
+            if(resetJumpsOnEveryWall)
                 pm.ResetDoubleJumps();
         }
 
@@ -381,13 +453,13 @@ public class WallRunning_MLab : MonoBehaviour
         wallRemembered = false;
 
         // increase camera fov
-        cam.DoFov(wallRunFOV, wallRunFOVChangeSpeed);
+        playerCamScript.DoFov(wallRunFOV, wallRunFOVChangeSpeed);
 
         RememberLastWall();
 
         // set camera tilt
-        if (wallRight) cam.DoTilt(wallRunTilt ,wallRunTiltChangeSpeed);
-        if(wallLeft) cam.DoTilt(-wallRunTilt, wallRunTiltChangeSpeed);
+        if (wallRight) playerCamScript.DoTilt(wallRunTilt ,wallRunTiltChangeSpeed);
+        if(wallLeft) playerCamScript.DoTilt(-wallRunTilt, wallRunTiltChangeSpeed);
     }
 
     private void WallRunningMovement()
@@ -445,8 +517,8 @@ public class WallRunning_MLab : MonoBehaviour
         pm.maxYSpeed = -1;
 
         // reset camera fov and tilt
-        cam.DoFov(-360, wallRunFOVChangeSpeed);
-        cam.DoTilt(-360, wallRunTiltChangeSpeed);
+        playerCamScript.DoFov(-360, wallRunFOVChangeSpeed);
+        playerCamScript.DoTilt(-360, wallRunTiltChangeSpeed);
     }
 
     #endregion
@@ -476,7 +548,7 @@ public class WallRunning_MLab : MonoBehaviour
 
         //CHANGE TODO: THIS
         // shake the camera, just a cool visual effect
-        // cam.DoShake(1, 1);
+        // playerCamScript.DoShake(1, 1);
     }
 
     private void ClimbingMovement()
@@ -526,12 +598,12 @@ public class WallRunning_MLab : MonoBehaviour
 
         //CHANGE TODO: THIS
         // reset realCam shake
-        // cam.ResetShake();
+        // playerCamScript.ResetShake();
 
         //CHANGE
         // reset realCam fov and tilt
-        // cam.ResetFov();
-        // cam.ResetTilt();
+        // playerCamScript.ResetFov();
+        // playerCamScript.ResetTilt();
 
         vaultClimbStarted = false;
     }
@@ -553,7 +625,7 @@ public class WallRunning_MLab : MonoBehaviour
         if (!pm.IsStateAllowed(PlayerMovement_MLab.MovementMode.walljumping))
             return;
 
-        if (!EnablePrecisionMode)
+        if (!enablePrecisionMode)
         {
             NormalWallJump();
             return;

@@ -9,14 +9,17 @@ public class MomentumExtension : MonoBehaviour
     private PlayerMovement_MLab playerMovement;
 
     [Header("Increase/Decrease")]
+    
     [Range(0f,10f)] public float momentumIncreaseFactor = 1;
     [Range(0f, 10f)] public float momentumDecreaseFactorOnGround = 2;
     [Range(0f, 10f)] public float momentumDecreaseFactorInAir = 0.5f;
 
     [Header("Boundaries")]
+    
     [Range(0f, 10f)] public float minimalMomentum = 3f;
 
     [Header("State Settings")]
+    
     public List<MovementState> movementStates = new List<MovementState>()
     {
         new MovementState("Walking", PlayerMovement_MLab.MovementMode.walking, 1, 1),

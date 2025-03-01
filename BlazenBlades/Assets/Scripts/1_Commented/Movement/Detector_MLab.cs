@@ -23,12 +23,16 @@ public class Detector_MLab : MonoBehaviour
     
     public Transform orientation;
     
+    [Header("Detection")]
+    
     public LayerMask whatIsGround;
     
     [Header("Behaviour")]
+    
     public bool showMarkerSphere = false;
     
     [Header("Jump Prediction State")]
+    
     [HideInInspector] public bool precisionTargetFound;
     [HideInInspector] public bool precisionTargetIsWall;
 

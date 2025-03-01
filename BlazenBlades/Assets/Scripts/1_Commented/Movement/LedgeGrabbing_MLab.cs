@@ -16,42 +16,81 @@ using UnityEngine;
 
 public class LedgeGrabbing_MLab : MonoBehaviour
 {
-    [Header("References")]
+    [Header("Player References")]
+    
     private WallRunning_MLab main; // this script is an extension of the main wallrunning script
+    
     private PlayerMovement_MLab pm;
+    
     public Transform orientation;
+    
     private Rigidbody rb;
-
-
-    [Header("Ledge Grabbing")]
+    
+    
+    [Header("Camera References")]
+    
     public Transform cam;
+    
+    [Header("Input References")]
+    
     public KeyCode jumpKey = KeyCode.Space;
-
-    public float moveToLedgeSpeed;
-    public float ledgeJumpForwardForce;
-    public float ledgeJumpUpForce;
-    public float maxLedgeJumpUpSpeed;
+    
+    [Header("Detection Settings")]
+    
+    public float ledgeDetectionLength = 3;
+    public float ledgeSphereCastRadius = 0.5f;
+    
+    [Space]
+    
     public float maxLedgeGrabDistance;
-
+    
+    [Space]
+    
     public float minTimeOnLedge;
+    
+    [Space]
+    
+    public LayerMask whatIsLedge;
+    
+    [Header("Ledge Grabbing Behaviour Settings")]
+    
+    public float moveToLedgeSpeed = 12;
+    
+    [Space]
+    
+    public float ledgeJumpForwardForce = 14;
+    public float ledgeJumpUpForce = 5;
+    
+    [Space]
+    
+    public float exitLedgeTime = 0.2f;
+    
+    //IDK if needed, wasn't used - Sid
+    // public float maxLedgeJumpUpSpeed;
+    
+    [Header("State")]
+    
+    public bool exitingLedge;
+    
+    public Transform currLedge;
+    
+    //Dynamic, Non Serialized Below
+    
+    //Timing
     private float timeOnLedge;
 
+    //State
     private bool holding;
-
-    [Header("Ledge Detection")]
-    public float ledgeDetectionLength;
-    public float ledgeSphereCastRadius;
-    public LayerMask whatIsLedge;
-
-    private Transform lastLedge;
-    public Transform currLedge;
-
+    
+    // Detection
     private RaycastHit ledgeHit;
+    
     private Vector3 directionToLedge;
+    
     private float distanceToLedge;
-
-    public bool exitingLedge;
-    public float exitLedgeTime;
+    
+    private Transform lastLedge;
+    
     private float exitLedgeTimer = 0.2f;
 
 

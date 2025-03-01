@@ -62,32 +62,6 @@ public enum eCamType
 
 public class PlayerCam_MLab : MonoBehaviour
 {
-    [Header("General Cam Settings")]
-    
-    public eCamType camType = eCamType.FirstPerson;
-    
-    public LayerMask firstPersonRenderMask = -1;
-    
-    public LayerMask thirdPersonRenderMask = -1;
-    
-    [Header("First Person Cam Settings")]
-    
-    public float firstPersonLookSpeedMult;
-    
-    [Header("Third Person Orbit Cam Settings")]
-    
-    public float playerRotSpeed = 1;
-    
-    [Header("Third person Fixed Cam Settings")]
-    
-    public float thirdPersonFixedLookSpeedMult;
-    
-    [Header("Input References")]
-    
-    public InputActionReference lookAction;
-    
-    public InputActionReference moveAction;
-    
     [Header("Cam References")]
     
     public Camera realCam; 
@@ -109,20 +83,53 @@ public class PlayerCam_MLab : MonoBehaviour
     public Transform thirdPersonFixedCamOrientation;
     
     public Transform grappleRig;
+    
+    [Header("Input References")]
+    
+    public InputActionReference lookAction;
+    
+    public InputActionReference moveAction;
+    
+    [Header("General Cam Settings")]
+    
+    public eCamType camType = eCamType.FirstPerson;
+    
+    public LayerMask firstPersonRenderMask = -1;
+    
+    public LayerMask thirdPersonRenderMask = -1;
+    
+    [Header("First Person Cam Settings")]
+    
+    public float firstPersonLookSpeedMult = 0.01f;
+    
+    [Header("Third Person Orbit Cam Settings")]
+    
+    public float playerRotSpeed = 7;
+    
+    [Header("Third person Fixed Cam Settings")]
+    
+    public float thirdPersonFixedLookSpeedMult = 0.01f;
 
     [Header("Cam Effects Settings")]
     public float baseFov = 100f;
-    public float fovTransitionTime = 0.25f;
-    public float baseTilt = 0f;
-    public float tiltTransitionTime = 0.25f;
     
+    [Space]
+    
+    public float baseTilt = 0f;
+    
+    //Dynamic, Non Serialized Below
+    
+    //References
     private CinemachineThirdPersonFollow thirdPersonFixedCamFollow;
     
     private Rigidbody rb;
     
+    //Input
     private Vector2 lookInput;
     
     private Vector2 moveInput;
+    
+    //Rot Values
 
     private float firstPersonXRot;
     private float firstPersonYRot;
