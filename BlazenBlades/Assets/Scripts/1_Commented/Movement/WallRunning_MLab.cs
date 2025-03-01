@@ -30,6 +30,8 @@ public class WallRunning_MLab : MonoBehaviour
 {
     public float wallRunFOV = 110f; // the fov of the camera while wallrunning
     public float wallRunFOVChangeSpeed = 0.2f; // how fast the fov changes while wallrunning
+    public float wallRunTilt = 5f; // the tilt of the camera while wallrunning
+    public float wallRunTiltChangeSpeed = 0.2f; // how fast the tilt changes while wallrunning
     
     [Header("Toggle Abilites")]
     public bool EnablePrecisionMode = true;
@@ -379,13 +381,13 @@ public class WallRunning_MLab : MonoBehaviour
         wallRemembered = false;
 
         // increase camera fov
-        cam.DoFov(110f, wallRunFOVChangeSpeed);
+        cam.DoFov(wallRunFOV, wallRunFOVChangeSpeed);
 
         RememberLastWall();
 
         // set camera tilt
-        if (wallRight) cam.DoTilt(5f ,-1);
-        if(wallLeft) cam.DoTilt(-5f, -1);
+        if (wallRight) cam.DoTilt(wallRunTilt ,wallRunTiltChangeSpeed);
+        if(wallLeft) cam.DoTilt(-wallRunTilt, wallRunTiltChangeSpeed);
     }
 
     private void WallRunningMovement()
@@ -443,8 +445,8 @@ public class WallRunning_MLab : MonoBehaviour
         pm.maxYSpeed = -1;
 
         // reset camera fov and tilt
-        cam.DoFov(-1, wallRunFOVChangeSpeed);
-        cam.ResetTilt();
+        cam.DoFov(-360, wallRunFOVChangeSpeed);
+        cam.DoTilt(-360, wallRunTiltChangeSpeed);
     }
 
     #endregion

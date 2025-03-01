@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.Serialization;
 
 
 // Dave MovementLab - Detector
@@ -16,24 +17,32 @@ using TMPro;
 
 public class Detector_MLab : MonoBehaviour
 {
-    [Header("ToggleAbilities")]
-    public bool ShowMarkerSphere = false;
-
     [Header("References")]
+    
     public PlayerMovement_MLab pm;
+    
     public Transform orientation;
+    
     public LayerMask whatIsGround;
-
-    [Header("Jump Predictions")]
+    
+    [Header("Behaviour")]
+    public bool showMarkerSphere = false;
+    
+    [Header("Jump Prediction State")]
     [HideInInspector] public bool precisionTargetFound;
     [HideInInspector] public bool precisionTargetIsWall;
 
     [Header("Debugging")]
+    
     public bool debuggingEnabled;
-    public MeshRenderer renderer_markerSphere;
+    
+    public MeshRenderer renderMarkerSphere;
+    
     public Transform markerSphere;
+    
     public Transform someSecondSphere;
-    public TextMeshProUGUI text_predictionState;
+    
+    public TextMeshProUGUI textPredictionState;
 
     private void Start()
     {
@@ -43,7 +52,7 @@ public class Detector_MLab : MonoBehaviour
 
         if (!debuggingEnabled)
         {
-            renderer_markerSphere.enabled = false;
+            renderMarkerSphere.enabled = false;
             someSecondSphere.GetComponent<MeshRenderer>().enabled = false;
         }
     }
@@ -52,8 +61,8 @@ public class Detector_MLab : MonoBehaviour
     {
         JumpPrediction();
 
-        if(ShowMarkerSphere)
-            renderer_markerSphere.enabled = precisionTargetFound;
+        if(showMarkerSphere)
+            renderMarkerSphere.enabled = precisionTargetFound;
     }
 
     /// This function tries to predict where the player wants to jump next.
@@ -126,6 +135,6 @@ public class Detector_MLab : MonoBehaviour
             precisionTargetIsWall = false;
 
         if (debuggingEnabled)
-            text_predictionState.SetText(predictionState);
+            textPredictionState.SetText(predictionState);
     }
 }

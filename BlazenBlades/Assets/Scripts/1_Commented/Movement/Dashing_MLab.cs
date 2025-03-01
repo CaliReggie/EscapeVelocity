@@ -147,7 +147,7 @@ public class Dashing_MLab : MonoBehaviour
         pm.maxYSpeed = -1;
 
         // reset the fov of your camera
-        cam.DoFov(-1, dashFOVChangeSpeed);
+        cam.DoFov(-360, dashFOVChangeSpeed);
 
         // if you disabled it before, activate the gravity of the rigidbody again
         if (disableGravity)

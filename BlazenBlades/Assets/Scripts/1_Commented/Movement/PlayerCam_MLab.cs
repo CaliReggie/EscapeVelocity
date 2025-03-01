@@ -116,6 +116,8 @@ public class PlayerCam_MLab : MonoBehaviour
     public float baseTilt = 0f;
     public float tiltTransitionTime = 0.25f;
     
+    private CinemachineThirdPersonFollow thirdPersonFixedCamFollow;
+    
     private Rigidbody rb;
     
     private Vector2 lookInput;
@@ -160,6 +162,9 @@ public class PlayerCam_MLab : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         // make the mouse coursor invisible
         Cursor.visible = false;
+        
+        // get the third person fixed cam follow component
+        thirdPersonFixedCamFollow = thirdPersonFixedCam.GetComponent<CinemachineThirdPersonFollow>();
     }
     
      private void OnEnable()
@@ -193,7 +198,7 @@ public class PlayerCam_MLab : MonoBehaviour
         
         moveInput = moveAction.action.ReadValue<Vector2>();
     }
-
+    
     public void SwitchToCamType(eCamType toCamType)
     {
         firstPersonCinCam.gameObject.SetActive( false);
@@ -330,10 +335,13 @@ public class PlayerCam_MLab : MonoBehaviour
 
     /// function called when starting to wallrun or starting to dash
     /// a simple function that just takes in an endValue, and then smoothly sets the cameras fov to this end value
-    public void DoFov(float endValue = -1, float transitionTime = -1)
+    public void DoFov(float endValue = -360, float transitionTime = -1)
     {
+        //stop coroutine if running
+        StopCoroutine(nameof(ChangeFOV));
+        
         //if end value is -1, set to base
-        if (endValue == -1) endValue = baseFov;
+        if (endValue == -360) endValue = baseFov;
         
         //if transition time is -1, instantly set fov, otherwise use time
         if (transitionTime == -1)
@@ -349,9 +357,6 @@ public class PlayerCam_MLab : MonoBehaviour
     
     private void SetFOV(float fov)
     {
-        //stop coroutine if running
-        
-        StopCoroutine(nameof(ChangeFOV));
         
         //Can simply get cam and set fov to fov
         switch (camType)
@@ -367,29 +372,10 @@ public class PlayerCam_MLab : MonoBehaviour
                 break;
         }
     }
-
-    private void ResetFov()
-    {
-        //Can simply get cam and set fov to baseFov
-        switch (camType)
-        {
-            case eCamType.FirstPerson:
-                firstPersonCinCam.Lens.FieldOfView = baseFov;
-                break;
-            case eCamType.ThirdOrbit:
-                thirdPersonOrbitCinCam.Lens.FieldOfView = baseFov;
-                break;
-            case eCamType.ThirdFixed:
-                thirdPersonFixedCam.Lens.FieldOfView = baseFov;
-                break;
-        }
-    }
     
     private IEnumerator ChangeFOV(float endValue, float transitionTime)
     {
         CinemachineCamera cam = null;
-        
-        Debug.Log("Getting cam");
         
         switch (camType)
         {
@@ -421,8 +407,12 @@ public class PlayerCam_MLab : MonoBehaviour
     }
     
     
-    public void DoTilt(float zTilt, float transitionTime = -1)
-    {
+    public void DoTilt(float zTilt = -360, float transitionTime = -1)
+    { 
+        StopCoroutine(nameof(ChangeTilt));
+        
+        if (zTilt == -360) zTilt = baseTilt;
+        
         if (transitionTime == -1)
         {
             SetTilt(zTilt);
@@ -434,8 +424,9 @@ public class PlayerCam_MLab : MonoBehaviour
         }
     }
     
-    public void SetTilt(float tilt)
+    private void SetTilt(float tilt)
     {
+
         switch (camType)
         {
             case eCamType.FirstPerson:
@@ -445,23 +436,14 @@ public class PlayerCam_MLab : MonoBehaviour
                 thirdPersonOrbitCinCam.Lens.Dutch = tilt;
                 break;
             case eCamType.ThirdFixed:
+                
                 thirdPersonFixedCam.Lens.Dutch = tilt;
-                break;
-        }
-    }
-
-    public void ResetTilt()
-    {
-        switch (camType)
-        {
-            case eCamType.FirstPerson:
-                firstPersonCinCam.Lens.Dutch = baseTilt;
-                break;
-            case eCamType.ThirdOrbit:
-                thirdPersonOrbitCinCam.Lens.Dutch = baseTilt;
-                break;
-            case eCamType.ThirdFixed:
-                thirdPersonFixedCam.Lens.Dutch = baseTilt;
+                
+                //if tilting to new state, change side
+                if (tilt != baseTilt)
+                {
+                    thirdPersonFixedCamFollow.CameraSide = tilt < 0 ? 1 : 0;
+                }
                 break;
         }
     }
@@ -469,6 +451,8 @@ public class PlayerCam_MLab : MonoBehaviour
     private IEnumerator ChangeTilt (float endValue, float transitionTime)
     {
         CinemachineCamera cam = null;
+
+        float targetFixedSide = thirdPersonFixedCamFollow.CameraSide;
         
         switch (camType)
         {
@@ -479,7 +463,14 @@ public class PlayerCam_MLab : MonoBehaviour
                 cam = thirdPersonOrbitCinCam;
                 break;
             case eCamType.ThirdFixed:
+                
                 cam = thirdPersonFixedCam;
+                
+                if (endValue != baseTilt)
+                {
+                    targetFixedSide = endValue < 0 ? 1 : 0;
+                }
+                
                 break;
             default:
                 Debug.LogError("No cam type set in ChangeTilt");
@@ -487,13 +478,23 @@ public class PlayerCam_MLab : MonoBehaviour
                 yield break;
         }
         
-        float incrementAmount = (endValue - cam.Lens.Dutch) / transitionTime;
+        float tiltIncrement = (endValue - cam.Lens.Dutch) / transitionTime;
+        
+        float sideIncrement;
+        
+        //cam range is slider 0-1, so we need to convert the target side to this range
+        sideIncrement = (targetFixedSide - thirdPersonFixedCamFollow.CameraSide) / transitionTime;
         
         float timeStop = Time.time + transitionTime;
         
         while (Time.time < timeStop)
         {
-            cam.Lens.Dutch += incrementAmount * Time.deltaTime;
+            cam.Lens.Dutch += tiltIncrement * Time.deltaTime;
+            
+            if (camType == eCamType.ThirdFixed)
+            {
+                thirdPersonFixedCamFollow.CameraSide += sideIncrement * Time.deltaTime;
+            }
             
             yield return null;
         }

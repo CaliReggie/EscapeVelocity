@@ -1231,6 +1231,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerHeight: 2
+  camEffectResetSpeed: 0.1
   orientation: {fileID: 6203304367961361731}
   moveForce: 12
   airMultiplier: 0.4
@@ -1244,14 +1245,13 @@ MonoBehaviour:
   crouchKey: 99
   walkMaxSpeed: 4
   sprintMaxSpeed: 8
-  crouchMaxSpeed: 1
+  crouchMaxSpeed: 2
   slopeSlideMaxSpeed: 30
-  wallJumpMaxSpeed: 9
-  climbMaxSpeed: 3
-  dashMaxSpeed: 15
-  swingMaxSpeed: 20
-  airMaxSpeed: 25
-  currentLimitedSpeed: 20
+  wallJumpMaxSpeed: 10
+  climbMaxSpeed: 4
+  dashMaxSpeed: 30
+  swingMaxSpeed: 30
+  currentLimitedSpeed: -1
   speedIncreaseMultiplier: 1
   slopeIncreaseMultiplier: 5
   maxYSpeed: 0
@@ -1295,56 +1295,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   momentumIncreaseFactor: 1
-  momentumDecreaseFactorOnGround: 10
+  momentumDecreaseFactorOnGround: 2.5
   momentumDecreaseFactorInAir: 0.5
-  minimalMomentum: 3
+  minimalMomentum: 1
   movementStates:
   - stateName: Walking
     movementMode: 7
-    speedBuildupFactor: 1
-    speedBuilddownFactor: 1
+    speedBuildupFactor: 10
+    speedBuilddownFactor: 10
     minNeededMomentum: 0
     maxAllowedMomentum: 100
   - stateName: Sprinting
     movementMode: 6
-    speedBuildupFactor: 1
-    speedBuilddownFactor: 1
-    minNeededMomentum: 0
+    speedBuildupFactor: 10
+    speedBuilddownFactor: 10
+    minNeededMomentum: 1
     maxAllowedMomentum: 100
   - stateName: Crouching
     movementMode: 5
-    speedBuildupFactor: 1
-    speedBuilddownFactor: 1
+    speedBuildupFactor: 10
+    speedBuilddownFactor: 10
     minNeededMomentum: 0
     maxAllowedMomentum: 100
   - stateName: Swinging
     movementMode: 11
-    speedBuildupFactor: 1
-    speedBuilddownFactor: 1
+    speedBuildupFactor: 30
+    speedBuilddownFactor: 10
     minNeededMomentum: 0
     maxAllowedMomentum: 100
   - stateName: Sliding
     movementMode: 4
-    speedBuildupFactor: 2
-    speedBuilddownFactor: 1
-    minNeededMomentum: 5
+    speedBuildupFactor: 10
+    speedBuilddownFactor: 10
+    minNeededMomentum: 1
     maxAllowedMomentum: 100
   - stateName: Wallrunning
     movementMode: 8
-    speedBuildupFactor: 1
-    speedBuilddownFactor: 1
-    minNeededMomentum: 5
+    speedBuildupFactor: 10
+    speedBuilddownFactor: 10
+    minNeededMomentum: 1
     maxAllowedMomentum: 100
   - stateName: Walljumping
     movementMode: 9
-    speedBuildupFactor: 1
-    speedBuilddownFactor: 1
-    minNeededMomentum: 5
+    speedBuildupFactor: 10
+    speedBuilddownFactor: 10
+    minNeededMomentum: 0
     maxAllowedMomentum: 100
   - stateName: Climbing
     movementMode: 10
-    speedBuildupFactor: 1
-    speedBuilddownFactor: 1
+    speedBuildupFactor: 10
+    speedBuilddownFactor: 10
     minNeededMomentum: 0
     maxAllowedMomentum: 100
   - stateName: Dashing
@@ -1363,7 +1363,7 @@ MonoBehaviour:
   - stateName: Limited
     movementMode: 1
     speedBuildupFactor: -1
-    speedBuilddownFactor: -1
+    speedBuilddownFactor: 1
     minNeededMomentum: 0
     maxAllowedMomentum: 0
   - stateName: Freeze
@@ -1384,35 +1384,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbeb9ff899020cf4bba0c367151844ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camType: 0
+  camType: 2
   firstPersonRenderMask:
     serializedVersion: 2
     m_Bits: 1109505
   thirdPersonRenderMask:
     serializedVersion: 2
     m_Bits: 3206657
-  firstPersonCamGameObject: {fileID: 6203304368357292919}
   firstPersonLookSpeedMult: 0.01
-  thirdPersonOrbitGameObject: {fileID: 7229438063091319378}
   playerRotSpeed: 7
-  thirdPersonFixedGameObject: {fileID: 7738526668597956848}
-  thirdPersonFixedCamOrientation: {fileID: 1981107739239566877}
   thirdPersonFixedLookSpeedMult: 0.01
-  grappleRig: {fileID: 5999831532581671790}
   lookAction: {fileID: -5630151704836100654, guid: afe51c0734c16cc478365fbf55b0fafd,
     type: 3}
   moveAction: {fileID: -1680190386980627800, guid: afe51c0734c16cc478365fbf55b0fafd,
     type: 3}
-  cam: {fileID: 6203304367693416331}
+  realCam: {fileID: 6203304367693416331}
+  firstPersonCinCam: {fileID: 211337961086038659}
+  thirdPersonOrbitCinCam: {fileID: 8550983039436619985}
+  thirdPersonFixedCam: {fileID: 1805998685722152318}
   orientation: {fileID: 6203304367961361731}
   player: {fileID: 6203304368605208358}
   playerObj: {fileID: 6203304367071852722}
+  thirdPersonFixedCamOrientation: {fileID: 1981107739239566877}
+  grappleRig: {fileID: 9214240837187434000}
   baseFov: 100
   fovTransitionTime: 0.25
+  baseTilt: 0
   tiltTransitionTime: 0.25
-  hbEnabled: 0
-  hbAmplitude: 0.5
-  hbFrequency: 12
 --- !u!114 &6203304368605208346
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1425,6 +1423,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f351021955f8834d8de720f3da4cb50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  wallRunFOV: 110
+  wallRunFOVChangeSpeed: 0.2
+  wallRunTilt: 5
+  wallRunTiltChangeSpeed: 0.2
   EnablePrecisionMode: 1
   orientation: {fileID: 6203304367961361731}
   whatIsWall:
@@ -1525,7 +1527,8 @@ MonoBehaviour:
   disableGravity: 1
   resetYVel: 1
   resetVel: 1
-  dashFov: 110
+  dashFov: 125
+  dashFOVChangeSpeed: 0.2
   dashCd: 1.5
   dashKey: 101
 --- !u!114 &6203304368605208337
@@ -1572,9 +1575,9 @@ MonoBehaviour:
   cam: {fileID: 6203304367693416332}
   maxSwingDistance: 20
   swingSpherecastRadius: 3
-  spring: 15
-  damper: 7
-  massScale: 50
+  spring: 50
+  damper: 50
+  massScale: 1
   maxGrappleDistance: 25
   grappleDelayTime: 0.15
   grappleForce: 35
@@ -1604,8 +1607,8 @@ MonoBehaviour:
   - {fileID: 1108145900663677864}
   - {fileID: 273777099212690784}
   debuggingEnabled: 1
-  horizontalThrustForce: 2000
-  forwardThrustForce: 5000
+  lateralThrustForce: 2500
+  retractThrustForce: 3500
   extendCableSpeed: 10
 --- !u!114 &6203304368605208351
 MonoBehaviour:

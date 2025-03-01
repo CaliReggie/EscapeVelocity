@@ -28,8 +28,8 @@ public class PlayerMovement_MLab : MonoBehaviour
 {
     public float playerHeight = 2f;
     
-    public float camEffectResetTime = 0.1f;
-
+    public float camEffectResetSpeed = 0.1f;
+    
     /// this is an empty gameObject inside the player, it is rotated by the camera
     /// -> keeps track of where the player is looking -> orientation.forward is the direction you're looking in
     public Transform orientation; 
@@ -71,7 +71,6 @@ public class PlayerMovement_MLab : MonoBehaviour
     public float climbMaxSpeed = 3f;
     public float dashMaxSpeed = 15f;
     public float swingMaxSpeed = 17f;
-    public float airMaxSpeed = 7f;
 
     
 
@@ -425,7 +424,8 @@ public class PlayerMovement_MLab : MonoBehaviour
     private void SetVelocity()
     {
         rb.linearVelocity = velocityToSet;
-        cam.DoFov(100f);
+        cam.DoFov(-360, camEffectResetSpeed);
+        cam.DoTilt(-360, camEffectResetSpeed);
     }
     private void EnableMovementNextTouchDelayed()
     {
@@ -437,7 +437,8 @@ public class PlayerMovement_MLab : MonoBehaviour
         if (tierTwoRestricted)
         {
             tierTwoRestricted = false;
-            cam.DoFov(-1, camEffectResetTime);
+            cam.DoFov(-360, camEffectResetSpeed);
+            cam.DoTilt(-360, camEffectResetSpeed);
         }
 
         DisableLimitedState();
@@ -499,7 +500,7 @@ public class PlayerMovement_MLab : MonoBehaviour
             mm = MovementMode.unlimited;
 
             // this way the player can go as fast as he wants
-            desiredMaxSpeed = 99f;
+            desiredMaxSpeed = 1000f;
         }
 
         // Mode - Limited
@@ -547,7 +548,7 @@ public class PlayerMovement_MLab : MonoBehaviour
                 desiredMaxSpeed = slopeSlideMaxSpeed;
             }
             else
-                desiredMaxSpeed = sprintMaxSpeed;
+                desiredMaxSpeed = maxSpeed;
         }
 
         // Mode - Crouching
@@ -600,6 +601,10 @@ public class PlayerMovement_MLab : MonoBehaviour
         {
             maxSpeed = desiredMaxSpeed;
         }
+        
+        Debug.Log("State: " + mm);
+        Debug.Log("desiredMaxSpeed: " + desiredMaxSpeed);
+        
         
 
         // movement mode switched

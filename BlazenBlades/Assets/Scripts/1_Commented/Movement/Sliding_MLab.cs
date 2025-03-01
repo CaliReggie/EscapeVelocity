@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 
 // Dave MovementLab - Sliding
@@ -15,33 +17,54 @@ using UnityEngine;
 
 public class Sliding_MLab : MonoBehaviour
 {
-    [Header("References")]
+    [Header("Input Reference")]
+    public KeyCode slideKey = KeyCode.LeftControl;
+    
+    [Header("Player References")]
+    
     public Transform orientation; // orientation object inside the player
-    /// public Transform playerObj; // player Object with the blue capsule and collider on it
     private Rigidbody rb;
     private PlayerMovement_MLab pm; // script reference to the PlayerMovement script
 
-    [Header("Sliding")]
+    [Header("Timings")]
+    public float slideCooldown = 0.5f;
+    
     public float minSlideTime = 0.2f;
     public float maxSlideTime = 0.75f; // how long the slide maximally lasts
-    public float slideForce = 200f;
-    private float slideTimer;
-    public float slideCooldown = 0.5f;
-
+    
+    [Header("Force Settings")]
+    
+    public bool useDynamicSlideForce = true; //if true, player momentum on slide equal to that of when pressed
+    
+    public float nonDynamicSlideForce = 200f;
+    
+    [Header("Behaviour Settings")]
+    
     public float slideYScale = 0.5f; // how tall the playerObj is while sliding
-    private float startYScale;
-
+    
+    public bool reverseCoyoteTime = true; //held in air triggers when grounded
+     
     private Vector3 startInputDirection;
-
-    [Header("Input")]
-    public KeyCode slideKey = KeyCode.LeftControl;
+    //Dynamic, Non-Serialized Below
+    
+    //Player Scale
+    private float startYScale;
+    
+    //Timing
+    private float slideTimer;
+    
+    
+    //Inputs
     private float horizontalInput;
     private float verticalInput;
-
-    public bool allowSlideHoldDown;
+    
+    //State
     private bool bufferSlide;
     private bool readyToSlide = true;
     private bool stopSlideAsap;
+    
+    // Dynamic Slide Force
+    private float dynamicStartForce;
 
     private void Start()
     {
@@ -64,14 +87,14 @@ public class Sliding_MLab : MonoBehaviour
         // if you press down the slide key while moving -> StartSlide
         if (Input.GetKeyDown(slideKey) && (horizontalInput != 0 || verticalInput != 0))
         {
-            if (allowSlideHoldDown) bufferSlide = true;
+            if (reverseCoyoteTime) bufferSlide = true;
             else if (pm.grounded && readyToSlide) bufferSlide = true;
         }
 
         // if you release the slide key while sliding -> StopSlide
         if (Input.GetKeyUp(slideKey))
         {
-            if (allowSlideHoldDown) bufferSlide = false;
+            if (reverseCoyoteTime) bufferSlide = false;
 
             if (pm.sliding) stopSlideAsap = true;
         }
@@ -100,7 +123,7 @@ public class Sliding_MLab : MonoBehaviour
         // make sure that sliding movement is continuously called while sliding
         if (pm.sliding) SlidingMovement();
     }
-
+    
     public void StartSlide()
     {
         if (!pm.IsStateAllowed(PlayerMovement_MLab.MovementMode.sliding))
@@ -114,7 +137,10 @@ public class Sliding_MLab : MonoBehaviour
 
         // shrink the player down
         transform.localScale = new Vector3(transform.localScale.x, slideYScale, transform.localScale.z);
-
+        
+        // store the start dynamic force
+        dynamicStartForce = rb.linearVelocity.magnitude;
+        
         // after shrinking, you'll be a bit in the air, so add downward force to hit the ground again
         /// you don't really notice this while playing
         rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
@@ -130,13 +156,19 @@ public class Sliding_MLab : MonoBehaviour
     {
         // calculate the direction of your keyboard input relative to the players orientation (where the player is looking)
         Vector3 inputDirection = Vector3.Normalize(orientation.forward * verticalInput + orientation.right * horizontalInput);
+        
+        //altering slide force before sending in if desired
+        if (useDynamicSlideForce)
+        {
+            nonDynamicSlideForce = dynamicStartForce;
+        }
 
         // Mode 1 - Sliding Normal
         /// slide time is limited
         if(!pm.OnSlope() || rb.linearVelocity.y > -0.1f)
         {
             // add force in the direction of your keyboard input
-            rb.AddForce(inputDirection * slideForce, ForceMode.Force);
+            rb.AddForce(inputDirection * nonDynamicSlideForce, ForceMode.Force);
 
             // count down timer
             slideTimer -= Time.deltaTime;
@@ -147,7 +179,7 @@ public class Sliding_MLab : MonoBehaviour
         else
         {
             // add force in the direction of your keyboard input
-            rb.AddForce(pm.GetSlopeMoveDirection(inputDirection) * slideForce, ForceMode.Force);
+            rb.AddForce(pm.GetSlopeMoveDirection(inputDirection) * nonDynamicSlideForce, ForceMode.Force);
         }
 
         // stop sliding again if the timer runs out
