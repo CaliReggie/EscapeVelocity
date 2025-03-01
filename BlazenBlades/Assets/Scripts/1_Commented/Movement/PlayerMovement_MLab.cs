@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using PhysicsExtensions;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
 // Dave MovementLab - PlayerMovement
@@ -47,12 +49,33 @@ public class PlayerMovement_MLab : MonoBehaviour
     
     // this is an empty gameObject inside the player, it is rotated by the camera
     // -> keeps track of where the player is looking -> orientation.forward is the direction you're looking in
-    public Transform orientation; 
+    public Transform orientation;
+
+    [Header("Camera References")]
+
+    public Transform realCamLoc;
     
     [Header("Input References")]
-    public KeyCode jumpKey = KeyCode.Space;
-    public KeyCode walkKey = KeyCode.LeftShift;
-    public KeyCode crouchKey = KeyCode.LeftControl;
+    
+    public string moveActionName = "Move";
+    
+    public string jumpActionName = "Jump";
+    
+    public string precisionMoveActionName = "PrecisionMove";
+    
+    public string sprintActionName = "Sprint";
+    
+    public string crouchActionName = "Crouch";
+    
+    public InputAction moveAction;
+    
+    public InputAction jumpAction;
+    
+    public InputAction precisionMoveAction;
+    
+    public InputAction sprintAction;
+    
+    public InputAction crouchAction;
     
     [Header("Player Settings")]
     
@@ -121,6 +144,10 @@ public class PlayerMovement_MLab : MonoBehaviour
     // this is needed for precise jumping and walljumping
     public float maxJumpRange;
     public float maxJumpHeight;
+    
+    [Header("Precision Move")]
+    
+    public bool enableSpecialJumping;
 
     [Header("Camera Effects")]
     
@@ -191,8 +218,7 @@ public class PlayerMovement_MLab : MonoBehaviour
     private float desiredMaxSpeedLastFrame; // the previous desired max speed
     
     //Input
-    [HideInInspector] public float horizontalInput;
-    [HideInInspector] public float verticalInput;
+    private Vector2 moveInput;
     
     //IDK if needed, wasn't used in script - Sid
     // public Transform groundCheck;
@@ -228,6 +254,33 @@ public class PlayerMovement_MLab : MonoBehaviour
             momentumExtension = GetComponent<MomentumExtension>();
             momentumExtensionEnabled = true;
         }
+        
+        PlayerInput playerInput = GetComponent<PlayerInput>();
+        
+        moveAction = playerInput.actions.FindAction(moveActionName);
+        jumpAction = playerInput.actions.FindAction(jumpActionName);
+        precisionMoveAction = playerInput.actions.FindAction(precisionMoveActionName);
+        sprintAction = playerInput.actions.FindAction(sprintActionName);
+        crouchAction = playerInput.actions.FindAction(crouchActionName);
+        
+    }
+
+    private void OnEnable()
+    {
+        moveAction.Enable();
+        jumpAction.Enable();
+        precisionMoveAction.Enable();
+        sprintAction.Enable();
+        crouchAction.Enable();
+    }
+    
+    private void OnDisable()
+    {
+        moveAction.Disable();
+        jumpAction.Disable();
+        precisionMoveAction.Disable();
+        sprintAction.Disable();
+        crouchAction.Disable();
     }
 
     private void Update()
@@ -247,10 +300,10 @@ public class PlayerMovement_MLab : MonoBehaviour
         if (grounded && doubleJumpsLeft != airJumpsAllowed)
             ResetDoubleJumps();
 
-        if (Input.GetKeyDown(KeyCode.J))
+        if (precisionMoveAction.triggered && enableSpecialJumping)
         {
             RaycastHit hit;
-            if (Physics.Raycast(playerCamScript.transform.position, playerCamScript.transform.forward, out hit, 50f, whatIsGround))
+            if (Physics.Raycast(realCamLoc.position, realCamLoc.transform.forward, out hit, 50f, whatIsGround))
             {
                 JumpToPosition(hit.point, 10f);
                 // print("trying to jump to " + hit.point);
@@ -278,13 +331,12 @@ public class PlayerMovement_MLab : MonoBehaviour
 
     private void MyInput()
     {
-        // get your W,A,S,D inputs from your keyboard
-        horizontalInput = Input.GetAxisRaw("Horizontal");
-        verticalInput = Input.GetAxisRaw("Vertical");
+        // get movement input
+        moveInput = moveAction.ReadValue<Vector2>();
 
         // whenever you press the jump key, you're grounded and readyToJump (which means jumping is not in cooldown),
         // you want to call the Jump() function
-        if(Input.GetKey(jumpKey) && grounded && readyToJump)
+        if(jumpAction.triggered && grounded && readyToJump)
         {
             readyToJump = false;
 
@@ -295,22 +347,21 @@ public class PlayerMovement_MLab : MonoBehaviour
         }
 
         // if you press the jump key while being in the air -> perform a double jump
-        else if(Input.GetKeyDown(jumpKey) && (mm == MovementMode.air || mm == MovementMode.walljumping))
+        else if(jumpAction.triggered && (mm == MovementMode.air || mm == MovementMode.walljumping))
         {
             DoubleJump();
         }
 
-        // if you press the crouch key while not pressing W,A,S or D -> start crouching
-        /// Note: if you are pressing W,A,S or D, the sliding script will start a slide instead
-        if (Input.GetKeyDown(crouchKey) && horizontalInput == 0 && verticalInput == 0)
+        // if you press the crouch key with no input, start crouching
+        if (crouchAction.triggered && (moveInput == Vector2.zero))
             StartCrouch();
 
         // uncrouch again when you release the crouch key
-        if (Input.GetKeyUp(crouchKey) && crouching)
+        if (crouching && !crouchAction.IsPressed())
             StopCrouch();
 
-        // whenever you press the walk key, walking should be true
-        sprinting = Input.GetKey(walkKey);
+        // whenever you press the sprint key, sprinting should be true
+        sprinting = sprintAction.IsPressed();
     }
 
     /// entire function only called when mm == walking, sprinting crouching or air
@@ -319,7 +370,7 @@ public class PlayerMovement_MLab : MonoBehaviour
         if (restricted || tierTwoRestricted) return;
 
         // calculate the direction you need to move in
-        moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+        moveDirection = orientation.forward * moveInput.y + orientation.right * moveInput.x;
 
         // To Add the movement force, just use Rigidbody.AddForce (with ForceMode.Force, because you are adding force continuously)
 
@@ -411,7 +462,7 @@ public class PlayerMovement_MLab : MonoBehaviour
         // find out how large this velocity is
         float flatVelMag = flatVel.magnitude;
 
-        Vector3 inputDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+        Vector3 inputDirection = orientation.forward * moveInput.y + orientation.right * moveInput.x;
 
         // reset rb velocity in the correct direction while maintaing speed
         /// for example, you're jumping forward, then in the air, you turn around and quickly jump back

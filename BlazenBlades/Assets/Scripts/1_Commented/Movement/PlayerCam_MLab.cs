@@ -62,6 +62,12 @@ public enum eCamType
 
 public class PlayerCam_MLab : MonoBehaviour
 {
+    public enum EControlScheme
+    {
+        KeyboardAndMouse,
+        Gamepad
+    }
+    
     [Header("Cam References")]
     
     public Camera realCam; 
@@ -86,9 +92,13 @@ public class PlayerCam_MLab : MonoBehaviour
     
     [Header("Input References")]
     
-    public InputActionReference lookAction;
+    public string lookActionName = "Look";
     
-    public InputActionReference moveAction;
+    public string moveActionName = "Move";
+    
+    public InputAction lookAction;
+    
+    public InputAction moveAction;
     
     [Header("General Cam Settings")]
     
@@ -100,7 +110,9 @@ public class PlayerCam_MLab : MonoBehaviour
     
     [Header("First Person Cam Settings")]
     
-    public float firstPersonLookSpeedMult = 0.01f;
+    public float keyAndMouseFirstPersonLookSpeedMult = 0.5f;
+    
+    public float gamepadFirstPersonLookSpeedMult = 0.5f;
     
     [Header("Third Person Orbit Cam Settings")]
     
@@ -108,7 +120,9 @@ public class PlayerCam_MLab : MonoBehaviour
     
     [Header("Third person Fixed Cam Settings")]
     
-    public float thirdPersonFixedLookSpeedMult = 0.01f;
+    public float keyAndMouseThirdPersonFixedLookSpeedMult = 0.5f;
+    
+    public float gamepadThirdPersonFixedLookSpeedMult = 0.5f;
 
     [Header("Cam Effects Settings")]
     public float baseFov = 100f;
@@ -128,6 +142,8 @@ public class PlayerCam_MLab : MonoBehaviour
     private Vector2 lookInput;
     
     private Vector2 moveInput;
+
+    private EControlScheme controlScheme;
     
     //Rot Values
 
@@ -136,6 +152,12 @@ public class PlayerCam_MLab : MonoBehaviour
     
     private float thirdFixedXRot;
     private float thirdFixedYRot;
+    
+    //Gamepad control schemes
+    
+    const string gamepadControlSchemeName = "Gamepad";
+    
+    const string keyAndMouseControlSchemeName = "Keyboard&Mouse";
 
     private void Awake()
     {
@@ -158,6 +180,38 @@ public class PlayerCam_MLab : MonoBehaviour
         Cursor.visible = false;
         
         SwitchToCamType(camType);
+        
+        PlayerInput playerInput = GetComponent<PlayerInput>();
+        
+        //set the control scheme
+        string currentControlScheme = playerInput.currentControlScheme;
+        
+        if (currentControlScheme == gamepadControlSchemeName)
+        {
+            controlScheme = EControlScheme.Gamepad;
+        }
+        else if (currentControlScheme == keyAndMouseControlSchemeName)
+        {
+            controlScheme = EControlScheme.KeyboardAndMouse;
+        }
+        else
+        {
+            Debug.LogError("Unknown control scheme, destroying attached Player Input GameObject");
+            
+            Destroy(gameObject);
+        }
+        
+        playerInput.onControlsChanged += OnControlSchemeChanged;
+        
+        moveAction = playerInput.actions.FindAction(moveActionName);
+        lookAction = playerInput.actions.FindAction(lookActionName);
+        
+    }
+    
+    public void OnControlSchemeChanged(PlayerInput playerInput)
+    {
+        controlScheme = playerInput.currentControlScheme == gamepadControlSchemeName ? 
+            EControlScheme.Gamepad : EControlScheme.KeyboardAndMouse;
     }
 
     private void Start()
@@ -176,16 +230,16 @@ public class PlayerCam_MLab : MonoBehaviour
     
      private void OnEnable()
     {
-        lookAction.action.Enable();
+        lookAction.Enable();
         
-        moveAction.action.Enable();
+        moveAction.Enable();
     }
     
     private void OnDisable()
     {
-        lookAction.action.Disable();
+        lookAction.Disable();
         
-        moveAction.action.Disable();
+        moveAction.Disable();
     }
 
 
@@ -201,9 +255,9 @@ public class PlayerCam_MLab : MonoBehaviour
     
     private void GetInput()
     {
-        lookInput = lookAction.action.ReadValue<Vector2>();
+        lookInput = lookAction.ReadValue<Vector2>();
         
-        moveInput = moveAction.action.ReadValue<Vector2>();
+        moveInput = moveAction.ReadValue<Vector2>();
     }
     
     public void SwitchToCamType(eCamType toCamType)
@@ -250,13 +304,17 @@ public class PlayerCam_MLab : MonoBehaviour
 
     public void ManageCamera()
     {
+        
         switch (camType)
         {
             case eCamType.FirstPerson:
                 
+                float firstLookSpeedMult = controlScheme == EControlScheme.Gamepad ?
+                gamepadFirstPersonLookSpeedMult : keyAndMouseFirstPersonLookSpeedMult;
+                
                 //set rotation
-                firstPersonYRot += lookInput.x * firstPersonLookSpeedMult;
-                firstPersonXRot -= lookInput.y * firstPersonLookSpeedMult;
+                firstPersonYRot += lookInput.x * firstLookSpeedMult;
+                firstPersonXRot -= lookInput.y * firstLookSpeedMult;
                 
                 // make sure that you can't look up or down more than 90* degrees
                 firstPersonXRot = Mathf.Clamp(firstPersonXRot, -89f, 89f);
@@ -293,8 +351,11 @@ public class PlayerCam_MLab : MonoBehaviour
             
             case eCamType.ThirdFixed:
                 
-                thirdFixedYRot += lookInput.x * thirdPersonFixedLookSpeedMult;
-                thirdFixedXRot -= lookInput.y * thirdPersonFixedLookSpeedMult;
+                float thirdLookSpeedMult = controlScheme == EControlScheme.Gamepad ?
+                    gamepadThirdPersonFixedLookSpeedMult : keyAndMouseThirdPersonFixedLookSpeedMult;
+                
+                thirdFixedYRot += lookInput.x * thirdLookSpeedMult;
+                thirdFixedXRot -= lookInput.y * thirdLookSpeedMult;
                 
                 thirdFixedXRot = Mathf.Clamp(thirdFixedXRot, -89, 89);
                 

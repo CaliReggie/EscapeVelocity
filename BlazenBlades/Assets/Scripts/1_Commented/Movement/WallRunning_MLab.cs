@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
 
@@ -57,9 +58,17 @@ public class WallRunning_MLab : MonoBehaviour
     
     [Header("Input References")]
     
-    public KeyCode wallJumpKey = KeyCode.Space;
-    public KeyCode upwardsRunKey = KeyCode.LeftShift; // the key to press in order to wall run diagonally upwards
-    public KeyCode downwardsRunKey = KeyCode.LeftControl;
+    public string wallJumpActionName = "Jump";
+    
+    public string upwardsRunActionName = "AltRunUp";
+    
+    public string downwardsRunActionName = "AltRunDown";
+    
+    public InputAction wallJumpAction;
+    
+    public InputAction upwardsRunAction;
+    
+    public InputAction downwardsRunAction;
     
     [Header("Detection")]
     public LayerMask whatIsWall;
@@ -267,6 +276,27 @@ public class WallRunning_MLab : MonoBehaviour
         playerCamScript = GetComponent<PlayerCam_MLab>();
         lg = GetComponent<LedgeGrabbing_MLab>();
         dt = GetComponent<Detector_MLab>();
+        
+        PlayerInput playerInput = GetComponent<PlayerInput>();
+        
+        wallJumpAction = playerInput.actions.FindAction(wallJumpActionName);
+        upwardsRunAction = playerInput.actions.FindAction(upwardsRunActionName);
+        downwardsRunAction = playerInput.actions.FindAction(downwardsRunActionName);
+        
+    }
+
+    private void OnEnable()
+    {
+        wallJumpAction.Enable();
+        upwardsRunAction.Enable();
+        downwardsRunAction.Enable();
+    }
+    
+    private void OnDisable()
+    {
+        wallJumpAction.Disable();
+        upwardsRunAction.Disable();
+        downwardsRunAction.Disable();
     }
 
     private void Update()
@@ -305,11 +335,11 @@ public class WallRunning_MLab : MonoBehaviour
         verticalInput = Input.GetAxisRaw("Vertical");
 
         // upwards and downwards running
-        upwardsRunning = Input.GetKey(upwardsRunKey);
-        downwardsRunning = Input.GetKey(downwardsRunKey);
+        upwardsRunning   = upwardsRunAction.IsPressed();
+        downwardsRunning = downwardsRunAction.IsPressed();
 
         // if you're pressing the jump key while wallrunning, or if there's a wall in front or back of you
-        if (Input.GetKeyDown(wallJumpKey) && (pm.wallrunning || wallFront || wallBack) && !lg.exitingLedge)
+        if (wallJumpAction.triggered && (pm.wallrunning || wallFront || wallBack) && !lg.exitingLedge)
         {
             pm.maxYSpeed = -1; // make sure the players Y speed is unlimited
             WallJump(); // perform a wall jump

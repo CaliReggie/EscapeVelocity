@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 // Dave MovementLab - LedgeGrabbing
 ///
@@ -33,7 +35,9 @@ public class LedgeGrabbing_MLab : MonoBehaviour
     
     [Header("Input References")]
     
-    public KeyCode jumpKey = KeyCode.Space;
+    public string jumpActionName = "Jump";
+    
+    public InputAction jumpAction;
     
     [Header("Detection Settings")]
     
@@ -100,6 +104,20 @@ public class LedgeGrabbing_MLab : MonoBehaviour
         pm = GetComponent<PlayerMovement_MLab>();
         rb = GetComponent<Rigidbody>();
         main = GetComponent<WallRunning_MLab>();
+        
+        PlayerInput playerInput = GetComponent<PlayerInput>();
+        
+        jumpAction = playerInput.actions.FindAction(jumpActionName);
+    }
+
+    private void OnEnable()
+    {
+        jumpAction.Enable();
+    }
+    
+    private void OnDisable()
+    {
+        jumpAction.Disable();
     }
 
     private void Update()
@@ -132,7 +150,7 @@ public class LedgeGrabbing_MLab : MonoBehaviour
             else exitingLedge = false;
         }
 
-        if (Input.GetKeyDown(jumpKey) && holding) LedgeJump();
+        if (holding && jumpAction.triggered) LedgeJump();
     }
 
     private void LedgeDetection()

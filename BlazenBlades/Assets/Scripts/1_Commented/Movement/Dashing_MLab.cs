@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
 
@@ -33,7 +34,9 @@ public class Dashing_MLab : MonoBehaviour
     
     [Header("Input References")]
     
-    public KeyCode dashKey = KeyCode.E;
+    public string dashActionName = "Dash";
+    
+    public InputAction dashAction;
     
 
     [Header("Dash Forces")]
@@ -91,12 +94,26 @@ public class Dashing_MLab : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         pm = GetComponent<PlayerMovement_MLab>();
         playerCamScript = GetComponent<PlayerCam_MLab>();
+        
+        PlayerInput playerInput = GetComponent<PlayerInput>();
+        
+        dashAction = playerInput.actions.FindAction(dashActionName);
+    }
+
+    private void OnEnable()
+    {
+        dashAction.Enable();
+    }
+    
+    private void OnDisable()
+    {
+        dashAction.Disable();
     }
 
     private void Update()
     {
         // if you press the dash key -> call Dash() function
-        if (Input.GetKeyDown(dashKey))
+        if (dashAction.triggered)
             Dash();
 
         // cooldown timer

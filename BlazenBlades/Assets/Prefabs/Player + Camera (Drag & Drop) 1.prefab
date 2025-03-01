@@ -1155,6 +1155,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6203304368605208358}
   - component: {fileID: 6203304368605208359}
+  - component: {fileID: 8271950607632209542}
   - component: {fileID: 6203304368605208344}
   - component: {fileID: 5965718284427126071}
   - component: {fileID: 6203304368605208345}
@@ -1218,6 +1219,37 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 1
+--- !u!114 &8271950607632209542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6203304368605208357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: afe51c0734c16cc478365fbf55b0fafd,
+    type: 3}
+  m_NotificationBehavior: 3
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Player
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 6203304367693416331}
 --- !u!114 &6203304368605208344
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1231,9 +1263,57 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   orientation: {fileID: 6203304367961361731}
-  jumpKey: 32
-  walkKey: 304
-  crouchKey: 99
+  realCamLoc: {fileID: 6203304367693416332}
+  moveActionName: Move
+  jumpActionName: Jump
+  precisionMoveActionName: PrecisionMove
+  sprintActionName: Sprint
+  crouchActionName: Crouch
+  moveAction:
+    m_Name: Move
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 31f1712b-06c9-4ed4-8bdb-394d1ddae76b
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  jumpAction:
+    m_Name: Jump
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 77b8fd12-5627-4467-832a-4cef6dcd76c0
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  precisionMoveAction:
+    m_Name: Precision Move
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: e24b93d6-9217-475c-8e42-2b9751132208
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  sprintAction:
+    m_Name: Sprint
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 52a7e187-4045-4aab-b2aa-fdc6a476ace5
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  crouchAction:
+    m_Name: Crouch
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 1060c37b-10b1-4e4d-aafd-e72ca13bc0f1
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
   playerHeight: 2
   moveForce: 12
   airMultiplier: 0.4
@@ -1260,6 +1340,7 @@ MonoBehaviour:
   maxSlopeAngle: 45
   maxJumpRange: 5.5
   maxJumpHeight: 2
+  enableSpecialJumping: 0
   camEffectResetSpeed: 0.1
   textSpeed: {fileID: 0}
   textYSpeed: {fileID: 0}
@@ -1279,8 +1360,6 @@ MonoBehaviour:
   walljumping: 0
   grounded: 0
   maxYSpeed: 0
-  horizontalInput: 0
-  verticalInput: 0
 --- !u!114 &5965718284427126071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1392,10 +1471,26 @@ MonoBehaviour:
   playerObj: {fileID: 6203304367071852722}
   thirdPersonFixedCamOrientation: {fileID: 1981107739239566877}
   grappleRig: {fileID: 9214240837187434000}
-  lookAction: {fileID: -5630151704836100654, guid: afe51c0734c16cc478365fbf55b0fafd,
-    type: 3}
-  moveAction: {fileID: -1680190386980627800, guid: afe51c0734c16cc478365fbf55b0fafd,
-    type: 3}
+  lookActionName: Look
+  moveActionName: Move
+  lookAction:
+    m_Name: Look
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 5ac591f9-81fc-43c5-b88a-8e575033d333
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  moveAction:
+    m_Name: Move
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: a19b9b5e-d62e-41b3-86fd-fe4f5f2dacd8
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
   camType: 2
   firstPersonRenderMask:
     serializedVersion: 2
@@ -1403,9 +1498,11 @@ MonoBehaviour:
   thirdPersonRenderMask:
     serializedVersion: 2
     m_Bits: 3206657
-  firstPersonLookSpeedMult: 0.01
+  keyAndMouseFirstPersonLookSpeedMult: 0.5
+  gamepadFirstPersonLookSpeedMult: 1.75
   playerRotSpeed: 7
-  thirdPersonFixedLookSpeedMult: 0.01
+  keyAndMouseThirdPersonFixedLookSpeedMult: 0.5
+  gamepadThirdPersonFixedLookSpeedMult: 1.75
   baseFov: 100
   baseTilt: 0
 --- !u!114 &6203304368605208346
@@ -1422,9 +1519,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enablePrecisionMode: 1
   orientation: {fileID: 6203304367961361731}
-  wallJumpKey: 32
-  upwardsRunKey: 304
-  downwardsRunKey: 306
+  wallJumpActionName: Jump
+  upwardsRunActionName: AltRunUp
+  downwardsRunActionName: AltRunDown
+  wallJumpAction:
+    m_Name: Wall Jump
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 647c9b92-2e93-436a-96bf-5a68ed57eeb6
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  upwardsRunAction:
+    m_Name: Upwards Run
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 54c453f0-94f4-42a7-a15a-4436209689a2
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  downwardsRunAction:
+    m_Name: Downwards Run
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 4c788403-c96d-4bc3-9893-a7ed5bab3fac
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
   whatIsWall:
     serializedVersion: 2
     m_Bits: 1536
@@ -1479,7 +1603,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   orientation: {fileID: 6203304367961361731}
   cam: {fileID: 6203304367693416332}
-  jumpKey: 32
+  jumpActionName: Jump
+  jumpAction:
+    m_Name: Jump
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: a6a1c44e-0778-495b-8c26-e1c7e52b549c
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
   ledgeDetectionLength: 3
   ledgeSphereCastRadius: 0.5
   maxLedgeGrabDistance: 2
@@ -1507,7 +1640,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   orientation: {fileID: 6203304367961361731}
   playerCamPos: {fileID: 6203304367693416332}
-  dashKey: 101
+  dashActionName: Dash
+  dashAction:
+    m_Name: Dash
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 90da054e-d947-4e83-b400-b79266443fba
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
   dashForce: 22
   dashUpwardForce: 0
   maxUpwardVel: 15
@@ -1535,7 +1677,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   orientation: {fileID: 6203304367961361731}
-  slideKey: 306
+  slideActionName: Crouch
+  slideAction:
+    m_Name: Slide
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 509c5d14-f7cd-4303-8dc2-fc1c99747457
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
   slideCooldown: 0.25
   minSlideTime: 0.1
   maxSlideTime: 0.75
@@ -1566,12 +1717,66 @@ MonoBehaviour:
   predictionPoints:
   - {fileID: 0}
   - {fileID: 0}
-  leftHookAction: {fileID: 1120369429361536294, guid: afe51c0734c16cc478365fbf55b0fafd,
-    type: 3}
-  rightHookAction: {fileID: 6884425896609761536, guid: afe51c0734c16cc478365fbf55b0fafd,
-    type: 3}
-  altHookUltilityAction: {fileID: 1979310071656275929, guid: afe51c0734c16cc478365fbf55b0fafd,
-    type: 3}
+  leftGrappleActionName: LeftGrapple
+  rightGrappleActionName: RightGrapple
+  leftSwingActionName: LeftSwing
+  rightSwingActionName: RightSwing
+  moveActionName: Move
+  jumpActionName: Jump
+  leftGrappleAction:
+    m_Name: Left Grapple
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 32524eb5-2358-438c-9b45-e1aaf34c6530
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  rightGrappleAction:
+    m_Name: Right Grapple
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 679cb65f-1ade-4726-aba7-5b49c0066ef5
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  leftSwingAction:
+    m_Name: Left Swing
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: d431b103-c125-4f86-8221-62977f90dfa5
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  rightSwingAction:
+    m_Name: Right Swing
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: ce8f2c02-0c0a-458e-9d4c-db34d48d6fc3
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  moveAction:
+    m_Name: Move
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: cb7864fd-21bf-48d9-87d3-b8ce1a1aeda9
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  jumpAction:
+    m_Name: Jump
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 3d6480dd-d2f0-42f6-bc73-14eacd09e948
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
   playerHeight: 2
   amountOfHookPoints: 2
   useChargeOnHookNotHit: 1
@@ -1943,7 +2148,7 @@ MonoBehaviour:
       Input:
         InputAction: {fileID: -5630151704836100654, guid: afe51c0734c16cc478365fbf55b0fafd,
           type: 3}
-        Gain: 1
+        Gain: 25
         LegacyInput: 
         LegacyGain: 1
         CancelDeltaTime: 0
@@ -1957,7 +2162,7 @@ MonoBehaviour:
       Input:
         InputAction: {fileID: -5630151704836100654, guid: afe51c0734c16cc478365fbf55b0fafd,
           type: 3}
-        Gain: -1
+        Gain: -25
         LegacyInput: 
         LegacyGain: 1
         CancelDeltaTime: 0

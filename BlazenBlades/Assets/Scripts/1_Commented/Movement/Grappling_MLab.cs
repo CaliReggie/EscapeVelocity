@@ -59,11 +59,29 @@ public class Grappling_MLab: MonoBehaviour
     
     [Header("Input References")]
     
-    public InputActionReference leftHookAction;
+    public string leftGrappleActionName = "LeftGrapple";
     
-    public InputActionReference rightHookAction;
+    public string rightGrappleActionName = "RightGrapple";
     
-    public InputActionReference altHookUltilityAction;
+    public string leftSwingActionName = "LeftSwing";
+    
+    public string rightSwingActionName = "RightSwing";
+    
+    public string moveActionName = "Move";
+    
+    public string jumpActionName = "Jump";
+    
+    public InputAction leftGrappleAction;
+    
+    public InputAction rightGrappleAction;
+    
+    public InputAction leftSwingAction;
+    
+    public InputAction rightSwingAction;
+    
+    public InputAction moveAction;
+    
+    public InputAction jumpAction;
     
     [Header("General Hook Settings")]
     
@@ -155,6 +173,9 @@ public class Grappling_MLab: MonoBehaviour
     
     private List<SpringJoint> joints; // for swining we use Unitys SpringJoint component
     
+    //Input
+    private Vector2 moveInput;
+    
     //Timing
     
     private float grapplingCdTimer;
@@ -177,20 +198,35 @@ public class Grappling_MLab: MonoBehaviour
         rb = GetComponent<Rigidbody>();
 
         ListSetup();
+        
+        PlayerInput playerInput = GetComponent<PlayerInput>();
+        
+        leftGrappleAction = playerInput.actions.FindAction(leftGrappleActionName);
+        rightGrappleAction = playerInput.actions.FindAction(rightGrappleActionName);
+        leftSwingAction = playerInput.actions.FindAction(leftSwingActionName);
+        rightSwingAction = playerInput.actions.FindAction(rightSwingActionName);
+        moveAction = playerInput.actions.FindAction(moveActionName);
+        jumpAction = playerInput.actions.FindAction(jumpActionName);
     }
 
     private void OnEnable()
     {
-        leftHookAction.action.Enable();
-        rightHookAction.action.Enable();
-        altHookUltilityAction.action.Enable();
+        leftGrappleAction.Enable();
+        rightGrappleAction.Enable();
+        leftSwingAction.Enable();
+        rightSwingAction.Enable();
+        moveAction.Enable();
+        jumpAction.Enable();
     }
     
     private void OnDisable()
     {
-        leftHookAction.action.Disable();
-        rightHookAction.action.Disable();
-        altHookUltilityAction.action.Disable();
+        leftGrappleAction.Disable();
+        rightGrappleAction.Disable();
+        leftSwingAction.Disable();
+        rightSwingAction.Disable();
+        moveAction.Disable();
+        jumpAction.Disable();
     }
 
     private void ListSetup()
@@ -237,36 +273,36 @@ public class Grappling_MLab: MonoBehaviour
 
     private void MyInput()
     {
-        if (altHookUltilityAction.action.IsPressed())
-        {
-            if (leftHookAction.action.triggered) StartGrapple(0);
-            if (rightHookAction.action.triggered) StartGrapple(1);
-        }
-        else
-        {
-            if (leftHookAction.action.triggered) StartSwing(0);
-            if (rightHookAction.action.triggered) StartSwing(1);
-        }
+        //due to modifiers on input for k&m, we want to always read if grapple is pressed first
+        
+        
+        if (leftGrappleAction.triggered) StartGrapple(0);
+        else if (leftSwingAction.triggered) StartSwing(0);
+        
+        if (rightGrappleAction.triggered) StartGrapple(1);
+        else if (rightSwingAction.triggered) StartSwing(1);
 
         if (grapplesActive[0])
         {
-            if (!leftHookAction.action.IsPressed()) TryStopGrapple(0);
+            if (!leftSwingAction.IsPressed()) TryStopGrapple(0);
         }
         
         if (grapplesActive[1])
         {
-            if (!rightHookAction.action.IsPressed()) TryStopGrapple(1);
+            if (!rightSwingAction.IsPressed()) TryStopGrapple(1);
         }
         
         if (swingsActive[0])
         {
-            if (!leftHookAction.action.IsPressed()) StopSwing(0);
+            if (!leftSwingAction.IsPressed()) StopSwing(0);
         }
         
         if (swingsActive[1])
         {
-            if (!rightHookAction.action.IsPressed()) StopSwing(1);
+            if (!rightSwingAction.IsPressed()) StopSwing(1);
         }
+        
+        moveInput = moveAction.ReadValue<Vector2>();
     }
 
     #region Swinging
@@ -437,16 +473,16 @@ public class Grappling_MLab: MonoBehaviour
             pullPoint = grapplePoints[0] + dirToGrapplePoint1 * 0.5f;
         }
 
-        // right
-        if (Input.GetKey(KeyCode.D)) rb.AddForce(orientation.right * lateralThrustForce * Time.deltaTime);
+        // rightmoveInput.
+        if (moveInput.x > 0) rb.AddForce(orientation.right * lateralThrustForce * Time.deltaTime);
         // left
-        if (Input.GetKey(KeyCode.A)) rb.AddForce(-orientation.right * lateralThrustForce * Time.deltaTime);
+        if (moveInput.x < 0) rb.AddForce(-orientation.right * lateralThrustForce * Time.deltaTime);
         // forward
-        if (Input.GetKey(KeyCode.W)) rb.AddForce(orientation.forward * lateralThrustForce * Time.deltaTime);
+        if (moveInput.y > 0) rb.AddForce(orientation.forward * lateralThrustForce * Time.deltaTime);
         // backward
-        /// if (Input.GetKey(KeyCode.S)) rb.AddForce(-orientation.forward * lateralThrustForce * Time.deltaTime);
+        /// if (moveInput.y < 0) rb.AddForce(-orientation.forward * lateralThrustForce * Time.deltaTime);
         // shorten cable
-        if (Input.GetKey(KeyCode.Space))
+        if (jumpAction.IsPressed())
         {
             Vector3 directionToPoint = pullPoint - transform.position;
             rb.AddForce(directionToPoint.normalized * retractThrustForce * Time.deltaTime);
@@ -458,7 +494,7 @@ public class Grappling_MLab: MonoBehaviour
             UpdateJoints(distanceFromPoint);
         }
         // extend cable
-        if (Input.GetKey(KeyCode.S))
+        if (moveInput.y < 0)
         {
             // calculate the distance to the grapplePoint
             float extendedDistanceFromPoint = Vector3.Distance(transform.position, pullPoint) + extendCableSpeed;

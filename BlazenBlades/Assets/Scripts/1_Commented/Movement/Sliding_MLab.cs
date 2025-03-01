@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
 
@@ -25,7 +26,9 @@ public class Sliding_MLab : MonoBehaviour
     
     [Header("Input Reference")]
     
-    public KeyCode slideKey = KeyCode.LeftControl;
+    public string slideActionName = "Crouch";
+    
+    public InputAction slideAction; // the input action for sliding
 
     [Header("Timings")]
     
@@ -78,6 +81,21 @@ public class Sliding_MLab : MonoBehaviour
         startYScale = transform.localScale.y;
 
         readyToSlide = true;
+        
+        PlayerInput playerInput = GetComponent<PlayerInput>();
+        
+        slideAction = playerInput.actions.FindAction(slideActionName);
+        
+    }
+
+    private void OnEnable()
+    {
+        slideAction.Enable();
+    }
+    
+    private void OnDisable()
+    {
+        slideAction.Disable();
     }
 
     private void Update()
@@ -87,14 +105,14 @@ public class Sliding_MLab : MonoBehaviour
         verticalInput = Input.GetAxisRaw("Vertical");
 
         // if you press down the slide key while moving -> StartSlide
-        if (Input.GetKeyDown(slideKey) && (horizontalInput != 0 || verticalInput != 0))
+        if (slideAction.triggered && (horizontalInput != 0 || verticalInput != 0))
         {
             if (reverseCoyoteTime) bufferSlide = true;
             else if (pm.grounded && readyToSlide) bufferSlide = true;
         }
 
         // if you release the slide key while sliding -> StopSlide
-        if (Input.GetKeyUp(slideKey))
+        if (!slideAction.IsPressed() && pm.sliding)
         {
             if (reverseCoyoteTime) bufferSlide = false;
 
