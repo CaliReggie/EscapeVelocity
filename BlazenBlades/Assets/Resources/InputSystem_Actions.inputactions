@@ -15,9 +15,18 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "PrecisionMove",
+                    "name": "PotentialAttack",
                     "type": "Button",
                     "id": "c8f4ce29-c78b-4b2c-b651-d5a30c0b76d2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "KineticAttack",
+                    "type": "Button",
+                    "id": "a80ef1e3-cc8f-4024-a9b2-69492b2e486c",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -99,24 +108,6 @@
                     "name": "Sprint",
                     "type": "Button",
                     "id": "641cd816-40e6-41b4-8c3d-04687c349290",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "AltRunUp",
-                    "type": "Button",
-                    "id": "b8f035c7-bfb0-40ea-90c8-a9b67a36a1c2",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "AltRunDown",
-                    "type": "Button",
-                    "id": "1ba119c7-12f0-409e-bdfb-81c5dfaebfe6",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -413,62 +404,40 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "PrecisionMove",
+                    "action": "PotentialAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
                     "id": "348159ed-a87d-41e7-b76f-32fe45919c0c",
-                    "path": "<Gamepad>/buttonNorth",
+                    "path": "<Gamepad>/leftShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "PrecisionMove",
+                    "action": "PotentialAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "8d775f05-bd1e-4362-be80-f294341a24b9",
-                    "path": "<Keyboard>/shift",
+                    "id": "52c0f7dc-85d3-40d9-800e-cba5b2e203f8",
+                    "path": "<Keyboard>/x",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "AltRunUp",
+                    "action": "KineticAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "4cfacc8c-4ddd-4f7d-910d-3b9496637fa8",
-                    "path": "<Gamepad>/leftStickPress",
+                    "id": "246cb826-da47-4e06-8f17-b442950c86a0",
+                    "path": "<Gamepad>/rightShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "AltRunUp",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "4b465974-1a2c-452b-9abf-1d24a3c41025",
-                    "path": "<Keyboard>/ctrl",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "AltRunDown",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "887b59e7-179d-49e6-a252-4dcd401d035c",
-                    "path": "<Gamepad>/rightStickPress",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "AltRunDown",
+                    "action": "KineticAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -506,15 +475,37 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "",
-                    "id": "abbc06d9-efde-4554-a60c-a35b708b965b",
-                    "path": "<Gamepad>/leftShoulder",
+                    "name": "RightStickDownLeftTrigger",
+                    "id": "d4613aae-8209-4f02-9063-b69fbe81110b",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LeftGrapple",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "3b844cb2-3971-457f-a363-b558a5d1443a",
+                    "path": "<Gamepad>/rightStickPress",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "LeftGrapple",
                     "isComposite": false,
-                    "isPartOfComposite": false
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "2ae47889-d6e1-4eb9-ad0e-6fc48cec3e8e",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "LeftGrapple",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 },
                 {
                     "name": "MiddleMouseRightClick",
@@ -550,15 +541,37 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "",
-                    "id": "e8f0ca3a-eca8-4e68-9a6a-529a970028da",
-                    "path": "<Gamepad>/rightShoulder",
+                    "name": "RightStickDownRightTrigger",
+                    "id": "bfe17fa0-ebb4-42c1-87db-770c340f351f",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RightGrapple",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "e6213e40-c8da-4702-957e-a8c6da0a5cc5",
+                    "path": "<Gamepad>/rightStickPress",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "RightGrapple",
                     "isComposite": false,
-                    "isPartOfComposite": false
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "ae803463-fd95-4bc1-a344-84a26d365bc8",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "RightGrapple",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         },

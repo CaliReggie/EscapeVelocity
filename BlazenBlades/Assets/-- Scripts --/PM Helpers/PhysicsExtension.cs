@@ -21,5 +21,29 @@ namespace PhysicsExtensions
 
             return velocityXZ + velocityY;
         }
+        public static Vector3 CalculateJumpVelocityWithTime(Vector3 startPoint, Vector3 endPoint, float timeToReach)
+        {
+            // Calculate the displacement in each axis
+            Vector3 displacement = endPoint - startPoint;
+            
+            // Horizontal displacement (XZ plane)
+            Vector3 displacementXZ = new Vector3(displacement.x, 0f, displacement.z);
+            
+            // Time to reach horizontal target (horizontal velocity is constant)
+            float horizontalSpeed = displacementXZ.magnitude / timeToReach;
+            
+            // Vertical displacement
+            float displacementY = displacement.y;
+            
+            // Vertical velocity calculation using kinematic equations
+            // Equation: y = v0 * t + 0.5 * g * t^2, solving for v0 (initial velocity)
+            float verticalSpeed = (displacementY - 0.5f * Physics.gravity.y * timeToReach * timeToReach) / timeToReach;
+
+            // Combine the horizontal and vertical velocities
+            Vector3 velocity = displacementXZ.normalized * horizontalSpeed; // Horizontal velocity vector
+            velocity.y = verticalSpeed; // Vertical velocity component
+
+            return velocity;
+        }
     }
 }
