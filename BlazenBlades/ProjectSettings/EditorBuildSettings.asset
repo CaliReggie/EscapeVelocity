@@ -15,6 +15,8 @@ EditorBuildSettings:
     path: Assets/Scenes/MovementLab.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   m_configObjects:
+    com.unity.input.settings: {fileID: 11400000, guid: 5137525bead5d64458226dff29c41869,
+      type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: afe51c0734c16cc478365fbf55b0fafd,
       type: 3}
   m_UseUCBPForAssetBundles: 0

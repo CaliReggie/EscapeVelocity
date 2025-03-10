@@ -276,20 +276,26 @@ public class Grappling_MLab: MonoBehaviour
         //due to modifiers on input for k&m, we want to always read if grapple is pressed first
         
         
-        if (leftGrappleAction.triggered) StartGrapple(0);
+        if (leftGrappleAction.triggered)
+        {
+            StartGrapple(0);
+        }
         else if (leftSwingAction.triggered) StartSwing(0);
         
-        if (rightGrappleAction.triggered) StartGrapple(1);
+        if (rightGrappleAction.triggered)
+        {
+            StartGrapple(1);
+        }
         else if (rightSwingAction.triggered) StartSwing(1);
 
         if (grapplesActive[0])
         {
-            if (!leftSwingAction.IsPressed()) TryStopGrapple(0);
+            if (leftGrappleAction.phase != InputActionPhase.Performed) TryStopGrapple(0);
         }
         
         if (grapplesActive[1])
         {
-            if (!rightSwingAction.IsPressed()) TryStopGrapple(1);
+            if (rightGrappleAction.phase != InputActionPhase.Performed) TryStopGrapple(1);
         }
         
         if (swingsActive[0])

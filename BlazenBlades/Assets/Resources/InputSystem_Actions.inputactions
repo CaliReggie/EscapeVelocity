@@ -47,7 +47,7 @@
                     "id": "d4e5557a-8bb1-4d73-a5c8-6b9ff32f31c0",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "DoubleTapHold",
                     "initialStateCheck": false
                 },
                 {
@@ -56,7 +56,7 @@
                     "id": "397e5b1f-7195-494c-b178-33de39b23fa9",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "DoubleTapHold",
                     "initialStateCheck": false
                 },
                 {
@@ -65,7 +65,7 @@
                     "id": "6c2ab1b8-8984-453a-af3d-a3c78ae1679a",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Hold",
                     "initialStateCheck": false
                 },
                 {
@@ -74,7 +74,7 @@
                     "id": "ab94d8a2-ee54-4bfd-a663-ce0aeadff950",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Hold",
                     "initialStateCheck": false
                 },
                 {
@@ -442,136 +442,48 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "MiddleMouseLeftClick",
-                    "id": "39198ff8-7d38-429c-98e5-70fbe2b14c8d",
-                    "path": "OneModifier",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "LeftGrapple",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "modifier",
-                    "id": "73e62184-1004-4bd2-b55c-2b545d7ee0c9",
-                    "path": "<Mouse>/middleButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "LeftGrapple",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "binding",
-                    "id": "4b728d05-ad5d-498c-b2a6-56ed1557e94f",
+                    "name": "",
+                    "id": "5d313217-c395-40ce-89db-6863b9251218",
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "LeftGrapple",
                     "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "RightStickDownLeftTrigger",
-                    "id": "d4613aae-8209-4f02-9063-b69fbe81110b",
-                    "path": "OneModifier",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "LeftGrapple",
-                    "isComposite": true,
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "modifier",
-                    "id": "3b844cb2-3971-457f-a363-b558a5d1443a",
-                    "path": "<Gamepad>/rightStickPress",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "LeftGrapple",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "binding",
-                    "id": "2ae47889-d6e1-4eb9-ad0e-6fc48cec3e8e",
+                    "name": "",
+                    "id": "b01e72d2-4c1c-4292-b22e-54377f392f90",
                     "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "LeftGrapple",
                     "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "MiddleMouseRightClick",
-                    "id": "271bf593-be60-496a-ab00-d8a674f55b6d",
-                    "path": "OneModifier",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "RightGrapple",
-                    "isComposite": true,
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "modifier",
-                    "id": "843d5df2-0769-449c-909e-d66ff11d2439",
-                    "path": "<Mouse>/middleButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "RightGrapple",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "binding",
-                    "id": "2197d13f-3740-4074-bdc2-da56db7ad734",
+                    "name": "",
+                    "id": "a73e5c7f-c2e8-49ec-b747-ab6cff58326c",
                     "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "RightGrapple",
                     "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "RightStickDownRightTrigger",
-                    "id": "bfe17fa0-ebb4-42c1-87db-770c340f351f",
-                    "path": "OneModifier",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "RightGrapple",
-                    "isComposite": true,
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "modifier",
-                    "id": "e6213e40-c8da-4702-957e-a8c6da0a5cc5",
-                    "path": "<Gamepad>/rightStickPress",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "RightGrapple",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "binding",
-                    "id": "ae803463-fd95-4bc1-a344-84a26d365bc8",
+                    "name": "",
+                    "id": "3f516658-8e27-43b0-b785-d2ca2ac07568",
                     "path": "<Gamepad>/rightTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "RightGrapple",
                     "isComposite": false,
-                    "isPartOfComposite": true
+                    "isPartOfComposite": false
                 }
             ]
         },
