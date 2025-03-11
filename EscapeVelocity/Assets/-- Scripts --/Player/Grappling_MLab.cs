@@ -280,14 +280,22 @@ public class Grappling_MLab: MonoBehaviour
         {
             StartGrapple(0);
         }
-        else if (leftSwingAction.triggered) StartSwing(0);
+        
+        if (!grapplesActive[0] && leftSwingAction.triggered)
+        {
+            StartSwing(0);
+        }
         
         if (rightGrappleAction.triggered)
         {
             StartGrapple(1);
         }
-        else if (rightSwingAction.triggered) StartSwing(1);
-
+        
+        if (!grapplesActive[1] && rightSwingAction.triggered)
+        {
+            StartSwing(1);
+        }
+        
         if (grapplesActive[0])
         {
             if (leftGrappleAction.phase != InputActionPhase.Performed) TryStopGrapple(0);
@@ -319,14 +327,7 @@ public class Grappling_MLab: MonoBehaviour
         {
             if (hooksActive[i])
             {
-                { TrackObject(i); }
-                
-                //don't show that prediction point if it's being used
-                predictionPoints[i].gameObject.SetActive(false);
-                predictionPoints[i].position = Vector3.zero;
-                
-                //empty raycast hit so it doesn't get used
-                predictionHits[i] = new RaycastHit();
+                TrackObject(i);
             }
             else
             {
@@ -558,6 +559,7 @@ public class Grappling_MLab: MonoBehaviour
             grapplePoints[grappleIndex] = predictionHits[grappleIndex].point;
 
             grapplesActive[grappleIndex] = true;
+            
             UpdateHooksActive();
 
             // call the ExecuteGrapple() function after the grappleDelayTime is over
@@ -717,10 +719,11 @@ public class Grappling_MLab: MonoBehaviour
     #endregion
 
     #region Tracking Objects
-
-    // Important Note: function currently not being used, I'll implement that soon
+    
     private void TrackObject(int grappleIndex)
     {
+        return;
+        
         //implement canceling of grapple if object is destroyed later //TODO: THIS
         if (grappleObjects[grappleIndex] == null) return;
         

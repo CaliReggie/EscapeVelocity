@@ -46,7 +46,7 @@
                     "type": "Button",
                     "id": "d4e5557a-8bb1-4d73-a5c8-6b9ff32f31c0",
                     "expectedControlType": "",
-                    "processors": "",
+                    "processors": "Clamp(max=1)",
                     "interactions": "DoubleTapHold",
                     "initialStateCheck": false
                 },
@@ -55,7 +55,7 @@
                     "type": "Button",
                     "id": "397e5b1f-7195-494c-b178-33de39b23fa9",
                     "expectedControlType": "",
-                    "processors": "",
+                    "processors": "Clamp(max=1)",
                     "interactions": "DoubleTapHold",
                     "initialStateCheck": false
                 },
@@ -399,19 +399,8 @@
                 },
                 {
                     "name": "",
-                    "id": "37752c2e-71e1-4ada-8337-40e8b7cf4886",
-                    "path": "<Keyboard>/z",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "PotentialAttack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "348159ed-a87d-41e7-b76f-32fe45919c0c",
-                    "path": "<Gamepad>/leftShoulder",
+                    "path": "<Gamepad>/leftStickPress",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
@@ -420,26 +409,81 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "",
-                    "id": "52c0f7dc-85d3-40d9-800e-cba5b2e203f8",
-                    "path": "<Keyboard>/x",
+                    "name": "MiddleMouseLeftClick",
+                    "id": "9a5cdb05-3865-4389-87c5-5a7a638097ae",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PotentialAttack",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "22711b2b-c0d5-49a3-91ee-2b22567422d8",
+                    "path": "<Mouse>/middleButton",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "KineticAttack",
+                    "action": "PotentialAttack",
                     "isComposite": false,
-                    "isPartOfComposite": false
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "a604da4d-ac61-4c85-b9fc-e27268f0dc5b",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "PotentialAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 },
                 {
                     "name": "",
                     "id": "246cb826-da47-4e06-8f17-b442950c86a0",
-                    "path": "<Gamepad>/rightShoulder",
+                    "path": "<Gamepad>/rightStickPress",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "KineticAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "MiddleMouseRightClick",
+                    "id": "ae505772-0045-494f-9e95-f48c0db046bf",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "KineticAttack",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "f6d96547-d6e9-45a5-9500-f6375689e19e",
+                    "path": "<Mouse>/middleButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "KineticAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "e3a4d62f-359c-4521-9525-9dfcf855fb63",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "KineticAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 },
                 {
                     "name": "",
