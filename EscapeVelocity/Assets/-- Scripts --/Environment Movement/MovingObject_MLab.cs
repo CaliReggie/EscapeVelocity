@@ -122,7 +122,7 @@ public class MovingObject_MLab : MonoBehaviour
         if(collision.gameObject.tag == "Player")
         {
             collision.transform.SetParent(transform);
-            collision.transform.GetComponent<PlayerMovement_MLab>().AssignPlatform(rb);
+            collision.transform.GetComponent<PlayerMovement>().AssignPlatform(rb);
         }
     }
 
@@ -131,7 +131,7 @@ public class MovingObject_MLab : MonoBehaviour
         if (collision.gameObject.tag == "Player")
         {
             collision.transform.SetParent(null);
-            collision.transform.GetComponent<PlayerMovement_MLab>().UnassignPlatform();
+            collision.transform.GetComponent<PlayerMovement>().UnassignPlatform();
         }
     }
 

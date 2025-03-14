@@ -6,51 +6,41 @@ using UnityEngine;
 
 public class MomentumExtension : MonoBehaviour
 {
-    private PlayerMovement_MLab playerMovement;
-
-    [Header("Increase/Decrease")]
+    [Header("Momentum General Settings")]
     
-    [Range(0f,10f)] public float momentumIncreaseFactor = 1;
-    [Range(0f, 10f)] public float momentumDecreaseFactorOnGround = 2;
-    [Range(0f, 10f)] public float momentumDecreaseFactorInAir = 0.5f;
-
-    [Header("Boundaries")]
+    [Range(0f,10f)] [SerializeField] private float momentumIncreaseFactor = 1;
+    [Range(0f, 10f)] [SerializeField] private float momentumDecreaseFactorOnGround = 2;
+    [Range(0f, 10f)] [SerializeField] private float momentumDecreaseFactorInAir = 0.5f;
     
-    [Range(0f, 10f)] public float minimalMomentum = 3f;
+    [Range(0f, 10f)] [field: SerializeField] public float MinimalMomentum { get; private set; } = 3f;
 
     [Header("State Settings")]
     
-    public List<MovementState> movementStates = new List<MovementState>()
+    [SerializeField] private List<MovementState> movementStates = new List<MovementState>()
     {
-        new MovementState("Walking", PlayerMovement_MLab.MovementMode.walking, 1, 1),
-        new MovementState("Sprinting",PlayerMovement_MLab.MovementMode.sprinting, 1, 1),
-        new MovementState("Crouching", PlayerMovement_MLab.MovementMode.crouching, 1, 1),
-        new MovementState("Swinging", PlayerMovement_MLab.MovementMode.swinging, 1, 1),
-        new MovementState("Sliding", PlayerMovement_MLab.MovementMode.sliding, 2, 1),
-        new MovementState("Wallrunning", PlayerMovement_MLab.MovementMode.wallrunning, 1, 1),
-        new MovementState("Walljumping", PlayerMovement_MLab.MovementMode.walljumping, 1, 1),
-        new MovementState("Climbing", PlayerMovement_MLab.MovementMode.climbing, 1, 1),
-        new MovementState("Dashing", PlayerMovement_MLab.MovementMode.dashing, -1, 10),
+        new MovementState("Walking", PlayerMovement.MovementMode.walking, 1, 1),
+        new MovementState("Sprinting",PlayerMovement.MovementMode.sprinting, 1, 1),
+        new MovementState("Crouching", PlayerMovement.MovementMode.crouching, 1, 1),
+        new MovementState("Swinging", PlayerMovement.MovementMode.swinging, 1, 1),
+        new MovementState("Sliding", PlayerMovement.MovementMode.sliding, 2, 1),
+        new MovementState("Wallrunning", PlayerMovement.MovementMode.wallrunning, 1, 1),
+        new MovementState("Walljumping", PlayerMovement.MovementMode.walljumping, 1, 1),
+        new MovementState("Climbing", PlayerMovement.MovementMode.climbing, 1, 1),
+        new MovementState("Dashing", PlayerMovement.MovementMode.dashing, -1, 10),
     };
 
-    public List<MovementState> hardcodedMovementStates = new List<MovementState>()
+    [SerializeField] private List<MovementState> hardcodedMovementStates = new List<MovementState>()
     {
-        new MovementState("Unlimited", PlayerMovement_MLab.MovementMode.unlimited, -1, -1),
-        new MovementState("Limited", PlayerMovement_MLab.MovementMode.limited, -1, 1),
-        new MovementState("Freeze", PlayerMovement_MLab.MovementMode.freeze, -1, -1),
+        new MovementState("Unlimited", PlayerMovement.MovementMode.unlimited, -1, -1),
+        new MovementState("Limited", PlayerMovement.MovementMode.limited, -1, 1),
+        new MovementState("Freeze", PlayerMovement.MovementMode.freeze, -1, -1),
     };
 
-
-    private void Start()
-    {
-        playerMovement = GetComponent<PlayerMovement_MLab>();
-    }
-
-    public MovementState GetMovementState(PlayerMovement_MLab.MovementMode movementMode)
+    private MovementState GetMovementState(PlayerMovement.MovementMode movementMode)
     {
         foreach (MovementState state in movementStates)
         {
-            if (state.movementMode == movementMode)
+            if (state.MovementMode == movementMode)
             {
                 return state;
             }
@@ -58,7 +48,7 @@ public class MomentumExtension : MonoBehaviour
         
         foreach (MovementState state in hardcodedMovementStates)
         {
-            if (state.movementMode == movementMode)
+            if (state.MovementMode == movementMode)
             {
                 return state;
             }
@@ -67,7 +57,7 @@ public class MomentumExtension : MonoBehaviour
         return null;
     }
 
-    public float GetIncreaseSpeedChangeFactor(PlayerMovement_MLab.MovementMode movementMode)
+    public float GetIncreaseSpeedChangeFactor(PlayerMovement.MovementMode movementMode)
     {
         float speedChangeFactor = 0f;
         
@@ -75,14 +65,14 @@ public class MomentumExtension : MonoBehaviour
         
         if (movementState != null)
         {
-            if (movementState.speedBuildupFactor == -1)
+            if (movementState.SpeedBuildupFactor == -1)
             {
                 speedChangeFactor = -1;
             }
                 
             else
             {
-                speedChangeFactor = momentumIncreaseFactor * movementState.speedBuildupFactor;
+                speedChangeFactor = momentumIncreaseFactor * movementState.SpeedBuildupFactor;
             }
         }
         else
@@ -95,7 +85,7 @@ public class MomentumExtension : MonoBehaviour
         return speedChangeFactor;
     }
 
-    public float GetDecreaseSpeedChangeFactor(PlayerMovement_MLab.MovementMode movementMode)
+    public float GetDecreaseSpeedChangeFactor(PlayerMovement.MovementMode movementMode)
     {
         float speedChangeFactor = 0f;
 
@@ -103,14 +93,14 @@ public class MomentumExtension : MonoBehaviour
         
         if (movementState != null)
         {
-            if (movementState.speedBuilddownFactor == -1)
+            if (movementState.SpeedBuilddownFactor == -1)
             {
                 speedChangeFactor = -1;
             }
                 
             else
             {
-                speedChangeFactor = momentumIncreaseFactor * movementState.speedBuilddownFactor;
+                speedChangeFactor = momentumIncreaseFactor * movementState.SpeedBuilddownFactor;
             }
         }
         else
@@ -126,18 +116,18 @@ public class MomentumExtension : MonoBehaviour
         return grounded ? momentumDecreaseFactorOnGround : momentumDecreaseFactorInAir;
     }
 
-    public bool IsStateAllowed(PlayerMovement_MLab.MovementMode movementMode, float currMomentum)
+    public bool IsStateAllowed(PlayerMovement.MovementMode movementMode, float currMomentum)
     {
         MovementState movementState = GetMovementState(movementMode);
         bool stateAllowed = true;
 
-        if(currMomentum < movementState.minNeededMomentum)
+        if(currMomentum < movementState.MinNeededMomentum)
             stateAllowed = false;
-        else if (currMomentum > movementState.maxAllowedMomentum)
+        else if (currMomentum > movementState.MaxAllowedMomentum)
             stateAllowed = false;
 
-        // Debug.Log($"CurrMomentum {currMomentum}, MinMomentum {movementState.minNeededMomentum},
-        // MaxMomentum {movementState.maxAllowedMomentum} -> State {movementState.stateName} allowed -> {stateAllowed}");
+        // Debug.Log($"CurrMomentum {currMomentum}, MinMomentum {movementState.MinNeededMomentum},
+        // MaxMomentum {movementState.MaxAllowedMomentum} -> State {movementState.StateName} allowed -> {stateAllowed}");
 
         return stateAllowed;
     }
@@ -146,30 +136,30 @@ public class MomentumExtension : MonoBehaviour
 [Serializable]
 public class MovementState
 {
-    public string stateName;
+    [field: SerializeField] public string StateName { get; private set; }
 
-    public PlayerMovement_MLab.MovementMode movementMode;
+    [field: SerializeField] public PlayerMovement.MovementMode MovementMode { get; private set; }
 
     [Tooltip("-1 means instant speed change")]
-    public float speedBuildupFactor = -1;
+    [field: SerializeField] public float SpeedBuildupFactor { get; private set; } = -1;
+    
     [Tooltip("-1 means instant speed change")]
-    public float speedBuilddownFactor = -1;
+    [field: SerializeField] public float SpeedBuilddownFactor { get; private set; } = -1;
 
-    [Range(0f, 100f)]
-    public float minNeededMomentum = 0f;
-    [Range(0f, 100f)]
-    public float maxAllowedMomentum = 100f;
+    [field: SerializeField] [Range(0f, 100f)] public float MinNeededMomentum { get; private set; } = 0f;
+    
+    [field: SerializeField] [Range(0f, 100f)] public float MaxAllowedMomentum { get; private set; } = 100f;
 
-    public MovementState(string stateName, PlayerMovement_MLab.MovementMode movementMode, float speedBuildupFactor, float speedBuilddownFactor)
+    public MovementState(string stateName, PlayerMovement.MovementMode movementMode, float speedBuildupFactor, float speedBuilddownFactor)
     {
-        this.stateName = stateName;
-        this.movementMode = movementMode;
-        this.speedBuildupFactor = speedBuildupFactor;
-        this.speedBuilddownFactor = speedBuilddownFactor;
+        this.StateName = stateName;
+        this.MovementMode = movementMode;
+        this.SpeedBuildupFactor = speedBuildupFactor;
+        this.SpeedBuilddownFactor = speedBuilddownFactor;
     }
 
-    public MovementState(PlayerMovement_MLab.MovementMode movementMode)
+    public MovementState(PlayerMovement.MovementMode movementMode)
     {
-        this.movementMode = movementMode;
+        this.MovementMode = movementMode;
     }
 }

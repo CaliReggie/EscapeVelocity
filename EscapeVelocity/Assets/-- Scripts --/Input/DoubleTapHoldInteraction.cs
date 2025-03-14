@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 // Simple custom interaction for managing grappling hook input
 // The swing is just a hold of the same button
-// For the grapple, the player, must double tap the button and hold the second tap to fire the grapple
+// For the grapple, the PlayerParent, must double tap the button and hold the second tap to fire the grapple
 public class DoubleTapHoldInteraction : IInputInteraction
 {
     private float maxTapSpacing = 0.5f;

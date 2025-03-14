@@ -2,18 +2,12 @@ using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 
+[RequireComponent(typeof(PlayerMovement))]
 public class PlayerEnergy : MonoBehaviour
 {
-    [Header("Player References")]
-    
-    [SerializeField] private Transform playerObjTransform;
-    
     [Header("Potential Energy")]
     
-    [SerializeField] private LayerMask whatIsGround;
-    
-    [Space]
-    
+    [Tooltip("Below the min, PE can not be gained. Above, no extra gain or effect, considered at max.")]
     [SerializeField] private Vector2 heightRange = new Vector2(0, 100); //Height range
     
     [Header("Kinetic Energy")]
@@ -33,37 +27,45 @@ public class PlayerEnergy : MonoBehaviour
     //Dynamic, Non - Serialized Below
     
     //References
-
-    private PlayerMovement_MLab pm;
     
-    private Rigidbody playerRb;
+    private Transform _playerObjTrans;
+    
+    private LayerMask _whatIsGround;
+
+    private PlayerMovement _pm;
+    
+    private Rigidbody _playerRb;
     
     //Energy
     
-    private float potentialEnergy;
+    private float _potentialEnergy = 0;
     
-    private float kineticEnergy;
+    private float _kineticEnergy = 0;
     
     //State
     
-    private float distanceToGround;
+    private float _distanceToGround;
     
-    private float lastSpeed;
+    private float _lastSpeed;
     
-    private float currentSpeed;
+    private float _currentSpeed;
     
-    private bool isGainingSpeed;
-    
+    private bool _isGainingSpeed;
+
+    private void Awake()
+    {
+        //get references
+        _pm = GetComponent<PlayerMovement>();
+        
+        _playerObjTrans = _pm.PlayerObj;
+        
+        _playerRb = GetComponent<Rigidbody>();
+    }
+
     private void Start()
     {
-        pm = GetComponent<PlayerMovement_MLab>();
-        
-        playerRb = GetComponent<Rigidbody>();
-        
-        if (playerObjTransform == null)
-        {
-            Debug.LogError("Player Object Transform not set in Player Energy script!");
-        }
+        //waited for _pm to initialize
+        _whatIsGround = _pm.WhatIsGround;
     }
 
     private void Update()
@@ -79,43 +81,43 @@ public class PlayerEnergy : MonoBehaviour
     {
         RaycastHit hit;
         
-        if (Physics.Raycast(playerObjTransform.position, Vector3.down, out hit, heightRange.y, whatIsGround))
+        if (Physics.Raycast(_playerObjTrans.position, Vector3.down, out hit, heightRange.y, _whatIsGround))
         {
             if (hit.collider != null)
             {
-                distanceToGround = hit.distance;
+                _distanceToGround = hit.distance;
             }
             else
             {
-                distanceToGround = -1;
+                _distanceToGround = -1;
             }
         }
         else
         {
-            distanceToGround = -1;
+            _distanceToGround = -1;
         }
     }
     
     private void SpeedState()
     {
-        lastSpeed = currentSpeed;
+        _lastSpeed = _currentSpeed;
         
-        currentSpeed = playerRb.linearVelocity.magnitude;
+        _currentSpeed = _playerRb.linearVelocity.magnitude;
         
-        if (currentSpeed == 0)
+        if (_currentSpeed == 0)
         {
-            isGainingSpeed = false;
+            _isGainingSpeed = false;
             
             return;
         }
         
-        if (currentSpeed >= lastSpeed)
+        if (_currentSpeed >= _lastSpeed)
         {
-            isGainingSpeed = true;
+            _isGainingSpeed = true;
         }
         else
         {
-            isGainingSpeed = false;
+            _isGainingSpeed = false;
         }
     }
     
@@ -124,69 +126,69 @@ public class PlayerEnergy : MonoBehaviour
         if (!PotentialGainBlocked)
         {
             //logic for kinetic energy
-            if (distanceToGround == -1)
+            if (_distanceToGround == -1)
             {
-                potentialEnergy = 100;
+                _potentialEnergy = 100;
             }
-            else if (distanceToGround >= heightRange.x)
+            else if (_distanceToGround >= heightRange.x)
             {
                 // getting percentage as place between height range
-                potentialEnergy = 100 - (100 - ((distanceToGround - heightRange.x) /
+                _potentialEnergy = 100 - (100 - ((_distanceToGround - heightRange.x) /
                     (heightRange.y - heightRange.x) * 100));
             }
             else
             {
-                potentialEnergy = 0;
+                _potentialEnergy = 0;
             }
             
-            PotentialEnergy = potentialEnergy;
+            PotentialEnergy = _potentialEnergy;
         }
         
         if (!KineticGainBlocked)
         {
             //logic for kinetic energy
-            if (currentSpeed > kineticSpeedLossThreshold)
+            if (_currentSpeed >= kineticSpeedLossThreshold)
             {
-                if (isGainingSpeed)
+                if (_isGainingSpeed)
                 {
-                    kineticEnergy += kineticGainPerSecond * Time.deltaTime;
+                    _kineticEnergy += kineticGainPerSecond * Time.deltaTime;
                 }
                 else
                 {
-                    kineticEnergy -= kineticLossAbovePerSecond * Time.deltaTime;
+                    _kineticEnergy -= kineticLossAbovePerSecond * Time.deltaTime;
                 }
             }
-            else if (currentSpeed < kineticSpeedLossThreshold)
+            else if (_currentSpeed < kineticSpeedLossThreshold)
             {
-                kineticEnergy -= kineticLossBelowPerSecond * Time.deltaTime;
+                _kineticEnergy -= kineticLossBelowPerSecond * Time.deltaTime;
             }
             
-            KineticEnergy = kineticEnergy;
+            KineticEnergy = _kineticEnergy;
         }
     }
 
     #region Getters & Setters
     public float PotentialEnergy { 
-        get => potentialEnergy;
+        get => _potentialEnergy;
         set
         {
-            potentialEnergy = value;
+            _potentialEnergy = value;
             
-            if (potentialEnergy > 100) potentialEnergy = 100;
+            if (_potentialEnergy > 100) _potentialEnergy = 100;
             
-            UIManager.Instance.SetPotentialEnergyFill(potentialEnergy / 100);
+            UIManager.Instance.SetPotentialEnergyFill(_potentialEnergy / 100);
         }
     }
     
     public float KineticEnergy { 
-        get => kineticEnergy;
+        get => _kineticEnergy;
         set
         {
-            kineticEnergy = value;
+            _kineticEnergy = value;
             
-            if (kineticEnergy > 100) kineticEnergy = 100;
+            if (_kineticEnergy > 100) _kineticEnergy = 100;
             
-            UIManager.Instance.SetKineticEnergyFill(kineticEnergy / 100);
+            UIManager.Instance.SetKineticEnergyFill(_kineticEnergy / 100);
         }
     }
     
